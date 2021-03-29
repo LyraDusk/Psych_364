@@ -24,14 +24,10 @@ view(dailydiary)
 You can also embed plots, for example:
 
 ```{r, echo=FALSE}
+#Simple helper function to convert "Yes" and "No" to 1 and 0 for summing
 YesNo <- function(x){
     ifelse(x=="Yes", 1,0)
 }
-test <- dailydiary %>%
-  filter(!is.na(attention)) %>%
-  group_by(gender_baseline) %>%
-  mutate_all(YesNo) %>%
-  summarize(across(c(homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding), sum, na.rm = TRUE))
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
@@ -40,7 +36,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 For daily diaries chore level: Sum number of childcare tasks for each partner over all days. Keep dyad id, participant id, gender, and sum of tasks
 to filter couples with no children, join to premeasures, check for numbers in people_4_TEXT and people_5_TEXT
 
-```{r}
+```{r childcare}
 filter_children <- premeasures %>%
   select(ResponseId, dyadID, people_4_TEXT, people_5_TEXT) %>%
   mutate(people_4_TEXT = ifelse(is.na(people_4_TEXT), 0, people_4_TEXT)) %>%
@@ -59,3 +55,76 @@ chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "Respons
   group_by(partID) %>%
   summarize(total_chores = sum(total_chores))
 ```
+
+Self- and Other-objectification scores: 
+Assuming for the moment that the column variables correspond to the rank at which the participants put the coded variables, sum the ranks of the competence variables (1,2,4,7,9) and the ranks of the appearance variables (3,5,6,8,10) and take the difference. 
+There's no easy way to do this with the way the data is set up, so prepare for mild ugliness. Apologies in advance. 
+
+Scores should range from -25 to 25, with higher scores representing a greater focus on attractiveness and greater objectification. 
+
+```{r self-objectification}
+comp_v <- c(1,2,4,7,9)
+attr_v <- c(3,5,6,8,10)
+self_obj <- premeasures %>%
+  select(ResponseId, dyadID, `self-object_1`, `self-object_2`, `self-object_3`, `self-object_4`, `self-object_5`, `self-object_6`, `self-object_7`, `self-object_8`, `self-object_9`, `self-object_10`) %>%
+  mutate(comp = 0, attr = 0) %>%
+  mutate(comp = comp + ifelse(`self-object_1` %in% comp_v, 1, 0), 
+         attr = attr + ifelse(`self-object_1` %in% attr_v, 1, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_2` %in% comp_v, 2, 0), 
+         attr = attr + ifelse(`self-object_2` %in% attr_v, 2, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_3` %in% comp_v, 3, 0), 
+         attr = attr + ifelse(`self-object_3` %in% attr_v, 3, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_4` %in% comp_v, 4, 0), 
+         attr = attr + ifelse(`self-object_4` %in% attr_v, 4, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_5` %in% comp_v, 5, 0), 
+         attr = attr + ifelse(`self-object_5` %in% attr_v, 5, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_6` %in% comp_v, 6, 0), 
+         attr = attr + ifelse(`self-object_6` %in% attr_v, 6, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_7` %in% comp_v, 7, 0), 
+         attr = attr + ifelse(`self-object_7` %in% attr_v, 7, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_8` %in% comp_v, 8, 0), 
+         attr = attr + ifelse(`self-object_8` %in% attr_v, 8, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_9` %in% comp_v, 9, 0), 
+         attr = attr + ifelse(`self-object_9` %in% attr_v, 9, 0)) %>%
+  mutate(comp = comp + ifelse(`self-object_10` %in% comp_v, 10, 0), 
+         attr = attr + ifelse(`self-object_10` %in% attr_v, 10, 0)) %>%
+  mutate(self_obj_score = comp - attr) %>%
+  mutate(self_obj_score = ifelse(is.na(`self-object_1`), NA, self_obj_score)) %>%
+  select(ResponseId, dyadID, self_obj_score)
+```
+
+```{r other-objectification}
+other_obj <- premeasures %>%
+  select(ResponseId, dyadID, `other-object_1`, `other-object_2`, `other-object_3`, `other-object_4`, `other-object_5`, `other-object_6`, `other-object_7`, `other-object_8`, `other-object_9`, `other-object_10`) %>%
+  mutate(comp = 0, attr = 0) %>%
+  mutate(comp = comp + ifelse(`other-object_1` %in% comp_v, 1, 0), 
+         attr = attr + ifelse(`other-object_1` %in% attr_v, 1, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_2` %in% comp_v, 2, 0), 
+         attr = attr + ifelse(`other-object_2` %in% attr_v, 2, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_3` %in% comp_v, 3, 0), 
+         attr = attr + ifelse(`other-object_3` %in% attr_v, 3, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_4` %in% comp_v, 4, 0), 
+         attr = attr + ifelse(`other-object_4` %in% attr_v, 4, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_5` %in% comp_v, 5, 0), 
+         attr = attr + ifelse(`other-object_5` %in% attr_v, 5, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_6` %in% comp_v, 6, 0), 
+         attr = attr + ifelse(`other-object_6` %in% attr_v, 6, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_7` %in% comp_v, 7, 0), 
+         attr = attr + ifelse(`other-object_7` %in% attr_v, 7, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_8` %in% comp_v, 8, 0), 
+         attr = attr + ifelse(`other-object_8` %in% attr_v, 8, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_9` %in% comp_v, 9, 0), 
+         attr = attr + ifelse(`other-object_9` %in% attr_v, 9, 0)) %>%
+  mutate(comp = comp + ifelse(`other-object_10` %in% comp_v, 10, 0), 
+         attr = attr + ifelse(`other-object_10` %in% attr_v, 10, 0)) %>%
+  mutate(other_obj_score = comp - attr) %>%
+  mutate(other_obj_score = ifelse(is.na(`other-object_1`), NA, other_obj_score)) %>%
+  select(ResponseId, other_obj_score)
+```
+
+```{r combined-objectification}
+objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "ResponseId"))
+```
+
+
+
