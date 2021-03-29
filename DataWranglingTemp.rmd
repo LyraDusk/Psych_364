@@ -1,0 +1,61 @@
+---
+title: "Data Wrangling Temp"
+author: "Lauren Meyer"
+date: "March 29, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+```
+
+This file is not meant to be a final part, it's where I'm keeping the data wrangling code until we can incorporate it into the final paper. -Lauren
+
+```{r }
+dailydiary <- read_csv("TeleCom_Dyad_dailydiary.csv")
+premeasures <- read_csv("TeleCom_Dyad_premeasures.csv")
+view(dailydiary)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+YesNo <- function(x){
+    ifelse(x=="Yes", 1,0)
+}
+test <- dailydiary %>%
+  filter(!is.na(attention)) %>%
+  group_by(gender_baseline) %>%
+  mutate_all(YesNo) %>%
+  summarize(across(c(homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding), sum, na.rm = TRUE))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+For daily diaries chore level: Sum number of childcare tasks for each partner over all days. Keep dyad id, participant id, gender, and sum of tasks
+to filter couples with no children, join to premeasures, check for numbers in people_4_TEXT and people_5_TEXT
+
+```{r}
+filter_children <- premeasures %>%
+  select(ResponseId, dyadID, people_4_TEXT, people_5_TEXT) %>%
+  mutate(people_4_TEXT = ifelse(is.na(people_4_TEXT), 0, people_4_TEXT)) %>%
+  mutate(people_5_TEXT = ifelse(is.na(people_5_TEXT), 0, people_5_TEXT)) %>%
+  mutate(children = ifelse(people_4_TEXT > 0, 1, ifelse(people_5_TEXT > 0, 1, 0)), childnum = people_4_TEXT + people_5_TEXT, na.rm = TRUE) %>%
+  select(ResponseId, children, childnum)
+
+clean_dd <- dailydiary %>%
+  select(partID, dyadID, gender, homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding) %>%
+  mutate_at(vars(-partID, -dyadID, -gender),YesNo) %>%
+  mutate_if(is.numeric, funs(ifelse(is.na(.), 0, .)))
+
+chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "ResponseId")) %>%
+  filter(children == 1) %>%
+  mutate(total_chores = rowSums(across(c(homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding), na.rm = TRUE))) %>%
+  group_by(partID) %>%
+  summarize(total_chores = sum(total_chores))
+```
