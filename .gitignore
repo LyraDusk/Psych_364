@@ -37,3 +37,8 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+.Rproj.user
+
+# Data Files
+TeleCom_Dyad_dailydiary.csv
+TeleCom_Dyad_premeasures.csv
