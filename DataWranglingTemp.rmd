@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readr)
+library(psych)
 ```
 
 This file is not meant to be a final part, it's where I'm keeping the data wrangling code until we can incorporate it into the final paper. -Lauren
@@ -16,23 +17,34 @@ This file is not meant to be a final part, it's where I'm keeping the data wrang
 ```{r }
 dailydiary <- read_csv("TeleCom_Dyad_dailydiary.csv")
 premeasures <- read_csv("TeleCom_Dyad_premeasures.csv")
-view(dailydiary)
+#view(premeasures)
+
+
+#quick test
+x <- dailydiary %>%
+  group_by(partID) %>%
+  summarize(n = n())
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
 ```{r, echo=FALSE}
 #Simple helper function to convert "Yes" and "No" to 1 and 0 for summing
 YesNo <- function(x){
     ifelse(x=="Yes", 1,0)
 }
+
+stripChars <- function(x) {
+  parse_number(x)
+}
+
+reverseScale9 <- function(x) {
+  1 + 9 - x
+}
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
+#Chores
 For daily diaries chore level: Sum number of childcare tasks for each partner over all days. Keep dyad id, participant id, gender, and sum of tasks
 to filter couples with no children, join to premeasures, check for numbers in people_4_TEXT and people_5_TEXT
 
@@ -56,7 +68,7 @@ chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "Respons
   summarize(total_chores = sum(total_chores))
 ```
 
-Self- and Other-objectification scores: 
+#Self- and Other-objectification scores: 
 Column variables correspond to the factors that are being ranked, the value is the rank of said factor. 
 
 Scores should range from -25 to 25, with higher scores representing a greater focus on attractiveness and greater objectification. 
@@ -87,4 +99,86 @@ objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "Respon
 ```
 
 
+#Relationship Quality
+
+```{r relationship_quality}
+rel_qual <- premeasures %>%
+  select(ResponseId, dyadID, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
+  #These are the ones being reversed
+  mutate_at(vars(relation_qual_2, relation_qual_4, relation_qual_7, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_18, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24), reverseScale9)
+
+corr.test(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25))$r
+#23 might be worth dropping, but the alpha is high enough (0.9) that we don't *need* to drop anything
+alpha(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25))
+
+#Final calculation
+rel_qual$total_relation_qual <- rowMeans(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25), na.rm = TRUE)
+rel_qual <- rel_qual %>%
+  select(ResponseId, dyadID, total_relation_qual)
+```
+
+#Gatekeeping Premeasures
+
+```{r gatekeeping}
+gatekeep <- premeasures %>%
+  select(ResponseId, dyadID, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars)
+
+corr.test(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16))
+#looking good, nothing needs to be reversed
+
+alpha(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16))
+#.92 alpha, nothing that looks like it needs reversing
+
+gatekeep$gatekeep_total <- rowMeans(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16), na.rm = TRUE)
+
+gatekeep <- gatekeep %>%
+  select(ResponseId, dyadID, gatekeep_total)
+```
+
+#Gatekeeping DailyDiaries
+
+```{r gatekeeping_2}
+scaleToNumeric <- function(x) {
+  ifelse(x == "Strongly agree", 5, ifelse(x == "Somewhat agree", 4, ifelse(x == "Neither agree nor disagree", 3, ifelse(x == "Somewhat disagree", 2, ifelse(x == "Strongly disagree", 1, NA)))))
+}
+
+dd_gatekeep <- dailydiary %>%
+  select(partID, dyadID, gate1, gate2, gate3, gate4, gate5, gate6) %>%
+  mutate_at(vars(gate1, gate2, gate3, gate4, gate5, gate6), scaleToNumeric)
+
+corr.test(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6))
+#no negative correlations again! we good.
+
+alpha(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6))
+#alpha of 0.84. Just fine. 1 and 4 could get dropped but it's consistent enough as is. 
+
+dd_gatekeep$gateTotal <- rowMeans(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6), na.rm = TRUE)
+dd_gatekeep <- dd_gatekeep %>%
+  group_by(partID) %>%
+  summarize(dd_gateTotal = mean(gateTotal))
+```
+
+#Final assembled dataset
+Work in progress as I add more variables
+Also note that (for unknown reasons) there are about 100 people missing from the daily diaries. I've asked Randi about that, will follow up.
+
+```{r dataset_assembly}
+assembled_dataset <- premeasures %>%
+  select(ResponseId, dyadID, gender, Q139) %>%
+  inner_join(., objectification) %>%
+  inner_join(., rel_qual) %>%
+  rename(relation_qual = total_relation_qual) %>%
+  left_join(., gatekeep) %>%
+  rename(gatekeep_premeasures = gatekeep_total) %>%
+  left_join(dd_gatekeep, by = c("ResponseId" = "partID")) %>%
+  rename(gatekeep_diaries = dd_gateTotal) %>%
+  left_join(chores_final, by = c("ResponseId" = "partID")) %>%
+  rename(childcare_tasks = total_chores) %>%
+  left_join(filter_children) %>%
+  rename(children_any = children) %>%
+  rename(teleworking = Q139)
+
+```
 
