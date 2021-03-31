@@ -19,11 +19,6 @@ dailydiary <- read_csv("TeleCom_Dyad_dailydiary.csv")
 premeasures <- read_csv("TeleCom_Dyad_premeasures.csv")
 #view(premeasures)
 
-
-#quick test
-x <- dailydiary %>%
-  group_by(partID) %>%
-  summarize(n = n())
 ```
 
 
@@ -44,7 +39,7 @@ reverseScale9 <- function(x) {
 
 ```
 
-#Chores
+## Chores
 For daily diaries chore level: Sum number of childcare tasks for each partner over all days. Keep dyad id, participant id, gender, and sum of tasks
 to filter couples with no children, join to premeasures, check for numbers in people_4_TEXT and people_5_TEXT
 
@@ -66,9 +61,11 @@ chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "Respons
   mutate(total_chores = rowSums(across(c(homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding), na.rm = TRUE))) %>%
   group_by(partID) %>%
   summarize(total_chores = sum(total_chores))
+
+rm(clean_dd)
 ```
 
-#Self- and Other-objectification scores: 
+## Self- and Other-objectification scores: 
 Column variables correspond to the factors that are being ranked, the value is the rank of said factor. 
 
 Scores should range from -25 to 25, with higher scores representing a greater focus on attractiveness and greater objectification. 
@@ -80,9 +77,12 @@ self_obj <- premeasures %>%
   select(ResponseId, dyadID, `self-object_1`, `self-object_2`, `self-object_3`, `self-object_4`, `self-object_5`, `self-object_6`, `self-object_7`, `self-object_8`, `self-object_9`, `self-object_10`) %>%
   mutate(comp = `self-object_1` + `self-object_2` + `self-object_4` + `self-object_7` + `self-object_9`, attr = `self-object_3` + `self-object_5` + `self-object_6` + `self-object_8` + `self-object_10`) %>%
   mutate(self_obj_score = comp - attr) %>%
-  mutate(self_obj_score = ifelse(is.na(`self-object_1`), NA, self_obj_score)) %>%
+  mutate(self_obj_score = ifelse(is.na(`self-object_1`), NA, self_obj_score)) 
+#Confirming that they correlate at -1
+corr.test(select(self_obj, comp, attr))
+self_obj <- self_obj %>%
   select(ResponseId, self_obj_score)
-
+rm(comp_v, attr_v)
 ```
 
 ```{r other-objectification}
@@ -90,16 +90,19 @@ other_obj <- premeasures %>%
   select(ResponseId, dyadID, `other-object_1`, `other-object_2`, `other-object_3`, `other-object_4`, `other-object_5`, `other-object_6`, `other-object_7`, `other-object_8`, `other-object_9`, `other-object_10`) %>%
   mutate(comp = `other-object_1` + `other-object_2` + `other-object_4` + `other-object_7` + `other-object_9`, attr = `other-object_3` + `other-object_5` + `other-object_6` + `other-object_8` + `other-object_10`) %>%
   mutate(other_obj_score = comp - attr) %>%
-  mutate(other_obj_score = ifelse(is.na(`other-object_1`), NA, other_obj_score)) %>%
+  mutate(other_obj_score = ifelse(is.na(`other-object_1`), NA, other_obj_score)) 
+corr.test(select(other_obj, comp, attr))
+other_obj <- other_obj %>%
   select(ResponseId, other_obj_score)
 ```
 
 ```{r combined-objectification}
 objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "ResponseId"))
+rm(self_obj, other_obj)
 ```
 
 
-#Relationship Quality
+## Relationship Quality
 
 ```{r relationship_quality}
 rel_qual <- premeasures %>%
@@ -118,7 +121,7 @@ rel_qual <- rel_qual %>%
   select(ResponseId, dyadID, total_relation_qual)
 ```
 
-#Gatekeeping Premeasures
+## Gatekeeping Premeasures
 
 ```{r gatekeeping}
 gatekeep <- premeasures %>%
@@ -137,7 +140,7 @@ gatekeep <- gatekeep %>%
   select(ResponseId, dyadID, gatekeep_total)
 ```
 
-#Gatekeeping DailyDiaries
+## Gatekeeping DailyDiaries
 
 ```{r gatekeeping_2}
 scaleToNumeric <- function(x) {
@@ -160,9 +163,9 @@ dd_gatekeep <- dd_gatekeep %>%
   summarize(dd_gateTotal = mean(gateTotal))
 ```
 
-#Final assembled dataset
+## Final assembled dataset
 Work in progress as I add more variables
-Also note that (for unknown reasons) there are about 100 people missing from the daily diaries. I've asked Randi about that, will follow up.
+Also note that there are about 100 people who did not fill out the daily diaries. 
 
 ```{r dataset_assembly}
 assembled_dataset <- premeasures %>%
@@ -180,5 +183,57 @@ assembled_dataset <- premeasures %>%
   rename(children_any = children) %>%
   rename(teleworking = Q139)
 
+#cleanup
+rm(objectification, rel_qual, gatekeep, dd_gatekeep, chores_final, filter_children)
+```
+
+
+## Childcare percent
+
+```{r cc_percent}
+total_childcare_temp <- assembled_dataset %>%
+  select(ResponseId, dyadID, childcare_tasks) %>%
+  group_by(dyadID) %>%
+  mutate(childcare_tasks = ifelse(is.na(childcare_tasks), 0, childcare_tasks)) %>%
+  summarize(total_tasks = sum(childcare_tasks)) %>%
+  filter(total_tasks > 0)
+
+childcare_temp2 <- assembled_dataset %>%
+  select(ResponseId, dyadID, childcare_tasks) %>%
+  left_join(total_childcare_temp) %>%
+  filter(total_tasks > 0) %>%
+  mutate(childcare_tasks = ifelse(is.na(childcare_tasks), 0, childcare_tasks)) %>%
+  mutate(childcare_percent = childcare_tasks / total_tasks * 100) %>%
+  select(ResponseId, childcare_percent)
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(childcare_temp2)
+
+#cleanup
+rm(total_childcare_temp, childcare_temp2)
+```
+
+```{r children_discrep}
+
+#Initial Corrections: 
+#The number of children entered by R_3Jgt1VbMKwbyTKE seems to be a typo, entered 10, partner put 0. 
+assembled_dataset <- assembled_dataset %>%
+  mutate(childnum = ifelse(ResponseId == "R_3Jgt1VbMKwbyTKE", 0, childnum), children_any = ifelse(ResponseId == "R_3Jgt1VbMKwbyTKE", 0, children_any))
+
+
+children <- assembled_dataset %>%
+  select(ResponseId, dyadID, children_any, childnum) %>%
+  group_by(dyadID)
+
+maxchildren <- children %>%
+  summarize(children_max = max(childnum))
+
+children_discrep <- children %>%
+  left_join(maxchildren) %>%
+  mutate(child_diff = children_max - childnum) %>%
+  filter(child_diff > 0)
+#there were 18 respondents who reported fewer children than their partners. 
+
+rm(maxchildren, children)
 ```
 
