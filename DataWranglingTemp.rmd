@@ -81,7 +81,7 @@ self_obj <- premeasures %>%
 #Confirming that they correlate at -1
 corr.test(select(self_obj, comp, attr))
 self_obj <- self_obj %>%
-  select(ResponseId, self_obj_score)
+  select(ResponseId, dyadID, self_obj_score)
 rm(comp_v, attr_v)
 ```
 
@@ -97,8 +97,33 @@ other_obj <- other_obj %>%
 ```
 
 ```{r combined-objectification}
-objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "ResponseId"))
-rm(self_obj, other_obj)
+objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "ResponseId")) 
+temp_obj_1 <- objectification %>%
+  #adding an alternating index for use in APIM calculations
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(self_obj_score_P1 = self_obj_score, other_obj_score_P1 = other_obj_score) %>%
+  select(dyadID, ind, self_obj_score_P1, other_obj_score_P1)
+
+temp_obj_2 <- objectification %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(self_obj_score_P2 = self_obj_score, other_obj_score_P2 = other_obj_score) %>%
+  select(-ResponseId)
+
+objectification <- objectification %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(temp_obj_1, by = c("dyadID", "ind")) %>%
+  left_join(temp_obj_2, by = c("dyadID", "ind")) %>%
+  mutate(self_obj_score_P = ifelse(is.na(self_obj_score_P1), self_obj_score_P2, self_obj_score_P1)) %>%
+  mutate(other_obj_score_P = ifelse(is.na(other_obj_score_P1), other_obj_score_P2, other_obj_score_P1)) %>%
+  select(ResponseId, dyadID, self_obj_score, other_obj_score, self_obj_score_P, other_obj_score_P)
+
+
+
+rm(self_obj, other_obj, temp_obj_1, temp_obj_2)
 ```
 
 
