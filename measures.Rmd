@@ -54,19 +54,20 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 
 #  Participants:
 ```{r warning=FALSE}
-premeasures %>% count(gender)
+ma<-premeasures%>%
+select(Q138)%>%
+mutate(percent = count(Q138) / 364 * 100)
 ```
 
 ```{r}
-favstats(variable ~ gender, data = DatasetName)
+favstats(~ indinc, data = premeasures)
+favstats(~ birthday, data = premeasures)
+favstats(~ childnum, data = assembled_dataset)
 ```
 
-Participants for the present study are 364 participants 182 couples who filled both a premeasure survey and daily diary
-178	
-In our analysis we discarded participants who did not answer most of the question or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include lesbain couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. For
 
+Participants for the present study are 364 participants 182 couples who filled both a premeasure survey and daily diary. In our analysis we discarded participants who did not answer most of the question or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include lesbain couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. For
 
-o Report sample size (number of individuals as well as number of dyads).
 o Demographics for the sample. That is, percentages of gender,
 percentages of racial groups, participant age, major, income, age of children,
 adoption type:
