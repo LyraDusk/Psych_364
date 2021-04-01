@@ -51,6 +51,32 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 # Measures:
 
 #  Preliminary Analyses:
+Include a section called Demographics or Participants or
+Participant Demographics or Preliminary Analyses. This is either a subsection of the
+Method section, or the Results section, depending on how involved it gets. You can be
+creative in this section, but here are some suggested things to include:
+o Describe any exclusion criteria used: for the first question we are exluding lesbain couples.
+those would din't answer all of the questions NA values for important questions for analysis 
+
+o Report sample size (number of individuals as well as number of dyads).
+o Demographics for the sample. That is, percentages of gender,
+percentages of racial groups, participant age, major, income, age of children,
+adoption type:
+
+o If working with indistinguishable dyads same-gender and different-gender couples:
+
+o If working with distinguishable dyads, report the correlations among important
+study variables using the dyad dataset. I recommend doing this in a table, NOT by
+reporting each correlation in the text:
+
+o If working with distinguishable dyads, you can run some paired-samples t-tests
+using the dyad dataset to test for basic differences:
+
+o If working with all the same-gender couples in Goldberg, you can do some
+independent samples t-tests to examine differences in between-dyads variables
+(e.g., is relationship length different between Lesbian and Gay male couples?). To
+do this, using the individual or pairwise data, you will need to first filter for
+member 1 so there’s only one record per couple. Then you can do your t-test.
 
 # table/figure: 
 
