@@ -48,16 +48,11 @@ set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
+# Measures:
 
+#  Preliminary Analyses:
 
-# Methods
-We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
-
-## Participants
-
-## Material
-
-## Procedure
+# table/figure: 
 
 ## Data analysis
 We used `r cite_r("r-references.bib")` for all our analyses.
