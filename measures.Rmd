@@ -39,8 +39,10 @@ output            : papaja::apa6_pdf
 
 ```{r setup, include = FALSE}
 library("papaja")
+library(mosaic)
 r_refs("r-references.bib")
 ```
+
 
 ```{r analysis-preferences}
 # Seed for random number generation
@@ -48,16 +50,43 @@ set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
+# Measures:
+
+#  Participants:
+```{r warning=FALSE}
+premeasures %>% count(gender)
+```
+
+```{r}
+favstats(variable ~ gender, data = DatasetName)
+```
+
+Participants for the present study are 364 participants 182 couples who filled both a premeasure survey and daily diary
+178	
+In our analysis we discarded participants who did not answer most of the question or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include lesbain couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. For
 
 
-# Methods
-We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+o Report sample size (number of individuals as well as number of dyads).
+o Demographics for the sample. That is, percentages of gender,
+percentages of racial groups, participant age, major, income, age of children,
+adoption type:
 
-## Participants
+o If working with indistinguishable dyads same-gender and different-gender couples:
 
-## Material
+o If working with distinguishable dyads, report the correlations among important
+study variables using the dyad dataset. I recommend doing this in a table, NOT by
+reporting each correlation in the text:
 
-## Procedure
+o If working with distinguishable dyads, you can run some paired-samples t-tests
+using the dyad dataset to test for basic differences:
+
+o If working with all the same-gender couples in Goldberg, you can do some
+independent samples t-tests to examine differences in between-dyads variables
+(e.g., is relationship length different between Lesbian and Gay male couples?). To
+do this, using the individual or pairwise data, you will need to first filter for
+member 1 so there’s only one record per couple. Then you can do your t-test.
+
+# table/figure: 
 
 ## Data analysis
 We used `r cite_r("r-references.bib")` for all our analyses.
