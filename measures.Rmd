@@ -39,8 +39,10 @@ output            : papaja::apa6_pdf
 
 ```{r setup, include = FALSE}
 library("papaja")
+library(mosaic)
 r_refs("r-references.bib")
 ```
+
 
 ```{r analysis-preferences}
 # Seed for random number generation
@@ -50,13 +52,19 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 
 # Measures:
 
-#  Preliminary Analyses:
-Include a section called Demographics or Participants or
-Participant Demographics or Preliminary Analyses. This is either a subsection of the
-Method section, or the Results section, depending on how involved it gets. You can be
-creative in this section, but here are some suggested things to include:
-o Describe any exclusion criteria used: for the first question we are exluding lesbain couples.
-those would din't answer all of the questions NA values for important questions for analysis 
+#  Participants:
+```{r warning=FALSE}
+premeasures %>% count(gender)
+```
+
+```{r}
+favstats(variable ~ gender, data = DatasetName)
+```
+
+Participants for the present study are 364 participants 182 couples who filled both a premeasure survey and daily diary
+178	
+In our analysis we discarded participants who did not answer most of the question or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include lesbain couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. For
+
 
 o Report sample size (number of individuals as well as number of dyads).
 o Demographics for the sample. That is, percentages of gender,
