@@ -262,3 +262,15 @@ children_discrep <- children %>%
 rm(maxchildren, children)
 ```
 
+
+```{r}
+same_sex <- assembled_dataset %>%
+  mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
+  group_by(dyadID) %>%
+  summarize(couple = sum(gender)) %>%
+  mutate(couple = ifelse(couple == 0, "Same-sex Male", ifelse(couple == 1, "Different-sex", "Same-sex Female")))
+assembled_dataset <- assembled_dataset %>%
+  left_join(same_sex, by = "dyadID") %>%
+  rename(couple_genders = couple)
+
+```
