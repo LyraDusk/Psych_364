@@ -193,7 +193,7 @@ Also note that there are about 100 people who did not fill out the daily diaries
 
 ```{r dataset_assembly}
 assembled_dataset <- premeasures %>%
-  select(ResponseId, dyadID, gender, Q139) %>%
+  select(ResponseId, dyadID, gender, race, Q139) %>%
   inner_join(., objectification) %>%
   inner_join(., rel_qual) %>%
   rename(relation_qual = total_relation_qual) %>%
@@ -271,5 +271,15 @@ same_sex <- assembled_dataset %>%
 assembled_dataset <- assembled_dataset %>%
   left_join(same_sex, by = "dyadID") %>%
   rename(couple_genders = couple)
+
+
+same_race <- assembled_dataset %>%
+  group_by(dyadID, race) %>%
+  summarize(n = n()) %>%
+  mutate(couple_race = ifelse(n == 2, "Same Race", "Mixed Race")) %>%
+  select(dyadID, couple_race) %>%
+  distinct()
+assembled_dataset <- assembled_dataset %>%
+  left_join(same_race, by = c("dyadID" = "dyadID"))
 
 ```
