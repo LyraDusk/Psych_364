@@ -42,3 +42,10 @@ vignettes/*.pdf
 # Data Files
 TeleCom_Dyad_dailydiary.csv
 TeleCom_Dyad_premeasures.csv
+
+# Knit output files
+DataWranglingTemp.html
+measures.html
+Measures-Working.pdf
+Measures-Working.tex
+Measures-Working.ttt
