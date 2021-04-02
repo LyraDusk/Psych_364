@@ -288,22 +288,12 @@ assembled_dataset <- assembled_dataset %>%
 
 #  Participants:
 
-
-```{r}
-same_sex <- assembled_dataset %>%
-  mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
-  group_by(dyadID) %>%
-  summarize(couple = sum(gender)) %>%
-  mutate(couple = ifelse(couple == 0, "Same-sex Male", ifelse(couple == 1, "Different-sex", "Same-sex Female")))
-```
-
-
-```{r}
+```{r echo=FALSE}
 demographics<-premeasures %>%
   full_join(same_sex)%>%
+  full_join(same_race)%>%
   full_join(assembled_dataset)%>%
- select(dyadID,indinc, birthday,couple,childnum,Q138,gender,race,wfh)
-
+ select(dyadID,indinc, birthday,couple, couple_race,childnum,Q138,gender,race,wfh)
 ```
 
 ```{r}
@@ -312,52 +302,51 @@ demographics<-premeasures %>%
 ```
 
 
-```{r warning=FALSE}
+```{r include = FALSE, warning=FALSE,echo=FALSE}
 tally( ~ Q138, data = demographics, format='percent')
 ```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 tally( ~ gender, data = demographics, format='percent')
 ```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 tally( ~ race, data = demographics, format='percent')
 ```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 tally( ~ wfh, data = demographics, format='percent')
 ```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 tally( ~ couple, data = demographics)
 ```
 
+```{r include = FALSE, echo=FALSE}
+tally( ~ couple_race, data = demographics)
+```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 tally( ~ couple, data = demographics, format='percent')
 ```
 
-```{r}
+```{r include = FALSE, echo=FALSE}
 favstats(~ indinc, data = premeasures)
 favstats(~ birthday, data = premeasures)
 favstats(~ childnum, data = assembled_dataset)
 ```
 
 
-```{r}
+```{r include = FALSE,echo=FALSE}
 destats<-demographics %>%
   select(indinc,birthday,childnum)
 library(psych)
 describe(destats)
 ```
 
-The current study includes 182 couples where 172 are heterosexual couples, 7 are same-sex female and 3 are same-sex male. The majority of the sample were married (91.8%) and  8.2% were not married but in a committed relationship.  not married. The majority of the sample was white (74%), 10% identified as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. The majority of the couples reported working from home (61.5%) and 20% were working in person(the rest were either missing value or other). The average age for parents was 45.8(middle-age) with SD=8.35 and the average annual income was  76,618 with SD= 105704. The median was 60,000 showing that the couples were mostly middle class. Finally, the reported number of children was 1.34 but the variance was big across the couples with an SD= 2.17.
+The current study includes 182 couples where 172 are heterosexual couples, 7 are same-sex female and 3 are same-sex male. The majority of the sample were married (91.8%) and  8.2% were not married but in a committed relationship.  Overall, the sample was split evenly between genders, with women making up 51% and men making up 49% of it. The majority of the sample was white (74%), 10% identified as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. The majority of the couples reported working from home (61.5%) and 20% were working in person(the rest were either missing value or other). The average age for parents was 45.8(middle-age) with SD=8.35 and the average annual income was 76,618 with SD= 105704. The median was 60,000 showing that the couples were mostly middle class. Finally, the reported number of children was 1.34 but the variance was big across the couples with an SD= 2.17.
 
-
-In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. 
-
-Overall there are 172 different-gender couples and 10 same-sex couples.
-
+In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. Overall there are 172 different-gender couples and 10 same-sex couples. The majority of the couples were same race (322), and 42 were mixed-race.
 
 #more to do:
 better table
