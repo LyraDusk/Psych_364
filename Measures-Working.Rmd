@@ -45,6 +45,7 @@ output            : papaja::apa6_pdf
 library(papaja)
 library(mosaic)
 library(lubridate)
+library(nlme)
 r_refs("r-references.bib")
 ```
 
@@ -339,6 +340,17 @@ The current study includes 182 couples where 172 are heterosexual couples, 7 are
 
 In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. Overall there are 172 different-gender couples and 10 same-sex couples. The majority of the couples were same race (322), and 42 were mixed-race.
 
+```{r}
+icc_mod  <- gls(relation_qual ~ gender, 
+                 na.action=na.omit, 
+                 correlation=corCompSymm (form=~1|dyadID), 
+                 data=assembled_dataset)
+```
+
+
+```{r}
+coef(icc_mod$model$corStruct, unconstrained = FALSE)
+```
 
 # Measures:
 
