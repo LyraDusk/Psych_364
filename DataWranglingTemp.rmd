@@ -146,22 +146,21 @@ rel_qual <- rel_qual %>%
   select(ResponseId, dyadID, total_relation_qual)
 ```
 
-## Gatekeeping Premeasures
-
+# Gatekeeping premeasures
 ```{r gatekeeping}
 gatekeep <- premeasures %>%
-  select(ResponseId, dyadID, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16) %>%
+  select(ResponseId, dyadID, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15) %>%
   mutate_at(vars(-ResponseId, -dyadID), stripChars)
 
-corr.test(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16))
+corr.test(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15))
 #looking good, nothing needs to be reversed
 
-alpha(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16))
+alpha(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15))
 #.92 alpha, nothing that looks like it needs reversing
 
-gatekeep$gatekeep_total <- rowMeans(select(gatekeep, gatekeeping_1, gatekeeping_2, gatekeeping_3, gatekeeping_4, gatekeeping_5, gatekeeping_6, gatekeeping_7, gatekeeping_8, gatekeeping_9, gatekeeping_10, gatekeeping_11, gatekeeping_12, gatekeeping_13, gatekeeping_14, gatekeeping_15, gatekeeping_16), na.rm = TRUE)
+gatekeep$gatekeep_total <- rowMeans(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15), na.rm = TRUE)
 
-gatekeep <- gatekeep %>%
+gatekeep <- gatekeep %>% 
   select(ResponseId, dyadID, gatekeep_total)
 ```
 
@@ -194,7 +193,7 @@ Also note that there are about 100 people who did not fill out the daily diaries
 
 ```{r dataset_assembly}
 assembled_dataset <- premeasures %>%
-  select(ResponseId, dyadID, gender, Q139) %>%
+  select(ResponseId, dyadID, gender, race, Q139) %>%
   inner_join(., objectification) %>%
   inner_join(., rel_qual) %>%
   rename(relation_qual = total_relation_qual) %>%
@@ -272,5 +271,15 @@ same_sex <- assembled_dataset %>%
 assembled_dataset <- assembled_dataset %>%
   left_join(same_sex, by = "dyadID") %>%
   rename(couple_genders = couple)
+
+
+same_race <- assembled_dataset %>%
+  group_by(dyadID, race) %>%
+  summarize(n = n()) %>%
+  mutate(couple_race = ifelse(n == 2, "Same Race", "Mixed Race")) %>%
+  select(dyadID, couple_race) %>%
+  distinct()
+assembled_dataset <- assembled_dataset %>%
+  left_join(same_race, by = c("dyadID" = "dyadID"))
 
 ```
