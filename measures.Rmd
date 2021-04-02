@@ -40,6 +40,7 @@ output            : papaja::apa6_pdf
 ```{r setup, include = FALSE}
 library("papaja")
 library(mosaic)
+library(lubridate)
 r_refs("r-references.bib")
 ```
 
@@ -71,6 +72,12 @@ demographics<-premeasures %>%
  select(dyadID,indinc, birthday,couple,childnum,Q138,gender,race,wfh)
 
 ```
+
+```{r}
+premeasures %>%
+as.period(interval(start = relation_length, end = "4/2/2020"),unit="years")
+```
+
 
 ```{r warning=FALSE}
 tally( ~ Q138, data = demographics, format='percent')
