@@ -1,41 +1,45 @@
 ---
-title             : "measures"
-shorttitle        : "Title"
+title             : "Project Proposal"
+shorttitle        : "Proposal"
 
 author: 
   - name          : "Angela Jauregui"
-    affiliation   : "1"
+    # affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
   - name          : "Lauren Meyer"
-    affiliation   : "1"
+    #affiliation   : "1"  
   - name          : "Syrine Matoussi"
-    affiliation   : "1"
+    # affiliation   : "1"
     role:
-      - Writing - Review & Editing
+
 
 affiliation:
-  - id            : "1"
+  - id            : " "
     institution   : "Smith College"
 
 
+
+abstract: | 
+  
+  
   <!-- https://tinyurl.com/ybremelq -->
   
 keywords          : "keywords"
 wordcount         : "X"
 
-bibliography      : ["r-references.bib"]
+bibliography      : ["r-references.bib", "paper-references.bib"]
 
 floatsintext      : no
 figurelist        : no
 tablelist         : no
 footnotelist      : no
-linenumbers       : yes
+linenumbers       : no
 mask              : no
 draft             : no
 
 documentclass     : "apa6"
 classoption       : "man"
 output            : papaja::apa6_pdf
----
 
 ```{r setup, include = FALSE}
 library("papaja")
@@ -45,10 +49,232 @@ r_refs("r-references.bib")
 ```
 
 
-```{r analysis-preferences}
+```{r analysis-preferences, include = FALSE}
 # Seed for random number generation
 set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+```{r include = FALSE, echo=FALSE}
+library(tidyverse)
+library(readr)
+library(psych)
+
+dailydiary <- read_csv("TeleCom_Dyad_dailydiary.csv")
+premeasures <- read_csv("TeleCom_Dyad_premeasures.csv")
+#view(premeasures)
+
+#Simple helper function to convert "Yes" and "No" to 1 and 0 for summing
+YesNo <- function(x){
+    ifelse(x=="Yes", 1,0)
+}
+
+stripChars <- function(x) {
+  parse_number(x)
+}
+
+reverseScale9 <- function(x) {
+  1 + 9 - x
+}
+
+filter_children <- premeasures %>%
+  select(ResponseId, dyadID, people_4_TEXT, people_5_TEXT) %>%
+  mutate(people_4_TEXT = ifelse(is.na(people_4_TEXT), 0, people_4_TEXT)) %>%
+  mutate(people_5_TEXT = ifelse(is.na(people_5_TEXT), 0, people_5_TEXT)) %>%
+  mutate(children = ifelse(people_4_TEXT > 0, 1, ifelse(people_5_TEXT > 0, 1, 0)), childnum = people_4_TEXT + people_5_TEXT, na.rm = TRUE) %>%
+  select(ResponseId, children, childnum)
+
+clean_dd <- dailydiary %>%
+  select(partID, dyadID, gender, homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding) %>%
+  mutate_at(vars(-partID, -dyadID, -gender),YesNo) %>%
+  mutate_if(is.numeric, funs(ifelse(is.na(.), 0, .)))
+
+chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "ResponseId")) %>%
+  filter(children == 1) %>%
+  mutate(total_chores = rowSums(across(c(homeschool, attention, worrying, activities, clothes, sick, getting_up, put_to_bed, discipline, reading, playing, picking_up, hygiene, dressing, comforting, feeding), na.rm = TRUE))) %>%
+  group_by(partID) %>%
+  summarize(total_chores = sum(total_chores))
+
+rm(clean_dd)
+
+comp_v <- c(1,2,4,7,9)
+attr_v <- c(3,5,6,8,10)
+self_obj <- premeasures %>%
+  select(ResponseId, dyadID, `self-object_1`, `self-object_2`, `self-object_3`, `self-object_4`, `self-object_5`, `self-object_6`, `self-object_7`, `self-object_8`, `self-object_9`, `self-object_10`) %>%
+  mutate(comp = `self-object_1` + `self-object_2` + `self-object_4` + `self-object_7` + `self-object_9`, attr = `self-object_3` + `self-object_5` + `self-object_6` + `self-object_8` + `self-object_10`) %>%
+  mutate(self_obj_score = comp - attr) %>%
+  mutate(self_obj_score = ifelse(is.na(`self-object_1`), NA, self_obj_score)) 
+#Confirming that they correlate at -1
+corr.test(select(self_obj, comp, attr))
+self_obj <- self_obj %>%
+  select(ResponseId, dyadID, self_obj_score)
+rm(comp_v, attr_v)
+
+other_obj <- premeasures %>%
+  select(ResponseId, dyadID, `other-object_1`, `other-object_2`, `other-object_3`, `other-object_4`, `other-object_5`, `other-object_6`, `other-object_7`, `other-object_8`, `other-object_9`, `other-object_10`) %>%
+  mutate(comp = `other-object_1` + `other-object_2` + `other-object_4` + `other-object_7` + `other-object_9`, attr = `other-object_3` + `other-object_5` + `other-object_6` + `other-object_8` + `other-object_10`) %>%
+  mutate(other_obj_score = comp - attr) %>%
+  mutate(other_obj_score = ifelse(is.na(`other-object_1`), NA, other_obj_score)) 
+corr.test(select(other_obj, comp, attr))
+other_obj <- other_obj %>%
+  select(ResponseId, other_obj_score)
+
+objectification <- inner_join(self_obj, other_obj, by = c("ResponseId" = "ResponseId")) 
+temp_obj_1 <- objectification %>%
+  #adding an alternating index for use in APIM calculations
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(self_obj_score_P1 = self_obj_score, other_obj_score_P1 = other_obj_score) %>%
+  select(dyadID, ind, self_obj_score_P1, other_obj_score_P1)
+
+temp_obj_2 <- objectification %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(self_obj_score_P2 = self_obj_score, other_obj_score_P2 = other_obj_score) %>%
+  select(-ResponseId)
+
+objectification <- objectification %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(temp_obj_1, by = c("dyadID", "ind")) %>%
+  left_join(temp_obj_2, by = c("dyadID", "ind")) %>%
+  mutate(self_obj_score_P = ifelse(is.na(self_obj_score_P1), self_obj_score_P2, self_obj_score_P1)) %>%
+  mutate(other_obj_score_P = ifelse(is.na(other_obj_score_P1), other_obj_score_P2, other_obj_score_P1)) %>%
+  select(ResponseId, dyadID, self_obj_score, other_obj_score, self_obj_score_P, other_obj_score_P)
+
+
+
+rm(self_obj, other_obj, temp_obj_1, temp_obj_2)
+
+rel_qual <- premeasures %>%
+  select(ResponseId, dyadID, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
+  #These are the ones being reversed
+  mutate_at(vars(relation_qual_2, relation_qual_4, relation_qual_7, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_18, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24), reverseScale9)
+
+corr.test(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25))$r
+#23 might be worth dropping, but the alpha is high enough (0.9) that we don't *need* to drop anything
+alpha(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25))
+
+#Final calculation
+rel_qual$total_relation_qual <- rowMeans(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25), na.rm = TRUE)
+rel_qual <- rel_qual %>%
+  select(ResponseId, dyadID, total_relation_qual)
+
+gatekeep <- premeasures %>%
+  select(ResponseId, dyadID, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars)
+
+corr.test(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15))
+#looking good, nothing needs to be reversed
+
+alpha(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15))
+#.92 alpha, nothing that looks like it needs reversing
+
+gatekeep$gatekeep_total <- rowMeans(select(gatekeep, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15), na.rm = TRUE)
+
+gatekeep <- gatekeep %>% 
+  select(ResponseId, dyadID, gatekeep_total)
+
+scaleToNumeric <- function(x) {
+  ifelse(x == "Strongly agree", 5, ifelse(x == "Somewhat agree", 4, ifelse(x == "Neither agree nor disagree", 3, ifelse(x == "Somewhat disagree", 2, ifelse(x == "Strongly disagree", 1, NA)))))
+}
+
+dd_gatekeep <- dailydiary %>%
+  select(partID, dyadID, gate1, gate2, gate3, gate4, gate5, gate6) %>%
+  mutate_at(vars(gate1, gate2, gate3, gate4, gate5, gate6), scaleToNumeric)
+
+corr.test(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6))
+#no negative correlations again! we good.
+
+alpha(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6))
+#alpha of 0.84. Just fine. 1 and 4 could get dropped but it's consistent enough as is. 
+
+dd_gatekeep$gateTotal <- rowMeans(select(dd_gatekeep, gate1, gate2, gate3, gate4, gate5, gate6), na.rm = TRUE)
+dd_gatekeep <- dd_gatekeep %>%
+  group_by(partID) %>%
+  summarize(dd_gateTotal = mean(gateTotal))
+
+assembled_dataset <- premeasures %>%
+  select(ResponseId, dyadID, gender, race, Q139) %>%
+  inner_join(., objectification) %>%
+  inner_join(., rel_qual) %>%
+  rename(relation_qual = total_relation_qual) %>%
+  left_join(., gatekeep) %>%
+  rename(gatekeep_premeasures = gatekeep_total) %>%
+  left_join(dd_gatekeep, by = c("ResponseId" = "partID")) %>%
+  rename(gatekeep_diaries = dd_gateTotal) %>%
+  left_join(chores_final, by = c("ResponseId" = "partID")) %>%
+  rename(childcare_tasks = total_chores) %>%
+  left_join(filter_children) %>%
+  rename(children_any = children) %>%
+  rename(teleworking = Q139)
+
+#cleanup
+rm(objectification, rel_qual, gatekeep, dd_gatekeep, chores_final, filter_children)
+
+total_childcare_temp <- assembled_dataset %>%
+  select(ResponseId, dyadID, childcare_tasks) %>%
+  group_by(dyadID) %>%
+  mutate(childcare_tasks = ifelse(is.na(childcare_tasks), 0, childcare_tasks)) %>%
+  summarize(total_tasks = sum(childcare_tasks)) %>%
+  filter(total_tasks > 0)
+
+childcare_temp2 <- assembled_dataset %>%
+  select(ResponseId, dyadID, childcare_tasks) %>%
+  left_join(total_childcare_temp) %>%
+  filter(total_tasks > 0) %>%
+  mutate(childcare_tasks = ifelse(is.na(childcare_tasks), 0, childcare_tasks)) %>%
+  mutate(childcare_percent = childcare_tasks / total_tasks * 100) %>%
+  select(ResponseId, childcare_percent)
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(childcare_temp2)
+
+#cleanup
+rm(total_childcare_temp, childcare_temp2)
+
+#Initial Corrections: 
+#The number of children entered by R_3Jgt1VbMKwbyTKE seems to be a typo, entered 10, partner put 0. 
+assembled_dataset <- assembled_dataset %>%
+  mutate(childnum = ifelse(ResponseId == "R_3Jgt1VbMKwbyTKE", 0, childnum), children_any = ifelse(ResponseId == "R_3Jgt1VbMKwbyTKE", 0, children_any))
+
+
+children <- assembled_dataset %>%
+  select(ResponseId, dyadID, children_any, childnum) %>%
+  group_by(dyadID)
+
+maxchildren <- children %>%
+  summarize(children_max = max(childnum))
+
+children_discrep <- children %>%
+  left_join(maxchildren) %>%
+  mutate(child_diff = children_max - childnum) %>%
+  filter(child_diff > 0)
+#there were 18 respondents who reported fewer children than their partners. 
+
+rm(maxchildren, children)
+
+same_sex <- assembled_dataset %>%
+  mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
+  group_by(dyadID) %>%
+  summarize(couple = sum(gender)) %>%
+  mutate(couple = ifelse(couple == 0, "Same-sex Male", ifelse(couple == 1, "Different-sex", "Same-sex Female")))
+assembled_dataset <- assembled_dataset %>%
+  left_join(same_sex, by = "dyadID") %>%
+  rename(couple_genders = couple)
+
+
+same_race <- assembled_dataset %>%
+  group_by(dyadID, race) %>%
+  summarize(n = n()) %>%
+  mutate(couple_race = ifelse(n == 2, "Same Race", "Mixed Race")) %>%
+  select(dyadID, couple_race) %>%
+  distinct()
+assembled_dataset <- assembled_dataset %>%
+  left_join(same_race, by = c("dyadID" = "dyadID"))
+
 ```
 
 # Measures:
@@ -74,8 +300,8 @@ demographics<-premeasures %>%
 ```
 
 ```{r}
-premeasures %>%
-as.period(interval(start = relation_length, end = "4/2/2020"),unit="years")
+#premeasures %>%
+#as.period(interval(start = relation_length, end = "4/2/2020"),unit="years")
 ```
 
 
