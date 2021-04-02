@@ -1,6 +1,6 @@
 ---
-title             : "Project Proposal"
-shorttitle        : "Proposal"
+title             : "Measures"
+shorttitle        : "Measures"
 
 author: 
   - name          : "Angela Jauregui"
@@ -21,7 +21,6 @@ affiliation:
 
 abstract: | 
   
-  
   <!-- https://tinyurl.com/ybremelq -->
   
 keywords          : "keywords"
@@ -40,6 +39,7 @@ draft             : no
 documentclass     : "apa6"
 classoption       : "man"
 output            : papaja::apa6_pdf
+---
 
 ```{r setup, include = FALSE}
 library(papaja)
