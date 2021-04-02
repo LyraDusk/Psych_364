@@ -53,10 +53,48 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 # Measures:
 
 #  Participants:
+
+
+```{r}
+same_sex <- assembled_dataset %>%
+  mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
+  group_by(dyadID) %>%
+  summarize(couple = sum(gender)) %>%
+  mutate(couple = ifelse(couple == 0, "Same-sex Male", ifelse(couple == 1, "Different-sex", "Same-sex Female")))
+```
+
+
+```{r}
+demographics<-premeasures %>%
+  full_join(same_sex)%>%
+  full_join(assembled_dataset)%>%
+ select(dyadID,indinc, birthday,couple,childnum,Q138,gender,race,wfh)
+
+```
+
 ```{r warning=FALSE}
-ma<-premeasures%>%
-select(Q138)%>%
-mutate(percent = count(Q138) / 364 * 100)
+tally( ~ Q138, data = demographics, format='percent')
+```
+
+```{r}
+tally( ~ gender, data = demographics, format='percent')
+```
+
+```{r}
+tally( ~ race, data = demographics, format='percent')
+```
+
+```{r}
+tally( ~ wfh, data = demographics, format='percent')
+```
+
+```{r}
+tally( ~ couple, data = demographics)
+```
+
+
+```{r}
+tally( ~ couple, data = demographics, format='percent')
 ```
 
 ```{r}
@@ -66,26 +104,28 @@ favstats(~ childnum, data = assembled_dataset)
 ```
 
 
-Participants for the present study are 364 participants 182 couples who filled both a premeasure survey and daily diary. In our analysis we discarded participants who did not answer most of the question or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include lesbain couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. For
+```{r}
+destats<-demographics %>%
+  select(indinc,birthday,childnum)
+library(psych)
+describe(destats)
+```
 
-o Demographics for the sample. That is, percentages of gender,
-percentages of racial groups, participant age, major, income, age of children,
-adoption type:
+The current study includes 182 couples where 172 are heterosexual couples, 7 are same-sex female and 3 are same-sex male. The majority of the sample were married (91.8%) and  8.2% were not married but in a committed relationship.  not married. The majority of the sample was white (74%), 10% identified as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. The majority of the couples reported working from home (61.5%) and 20% were working in person(the rest were either missing value or other). The average age for parents was 45.8(middle-age) with SD=8.35 and the average annual income was  76,618 with SD= 105704. The median was 60,000 showing that the couples were mostly middle class. Finally, the reported number of children was 1.34 but the variance was big across the couples with an SD= 2.17.
 
-o If working with indistinguishable dyads same-gender and different-gender couples:
 
-o If working with distinguishable dyads, report the correlations among important
-study variables using the dyad dataset. I recommend doing this in a table, NOT by
-reporting each correlation in the text:
+In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. 
 
-o If working with distinguishable dyads, you can run some paired-samples t-tests
-using the dyad dataset to test for basic differences:
+Overall there are 172 different-gender couples and 10 same-sex couples.
 
-o If working with all the same-gender couples in Goldberg, you can do some
-independent samples t-tests to examine differences in between-dyads variables
-(e.g., is relationship length different between Lesbian and Gay male couples?). To
-do this, using the individual or pairwise data, you will need to first filter for
-member 1 so there’s only one record per couple. Then you can do your t-test.
+
+#more to do:
+better table
+ICC
+t-p vals
+relationship length 
+same race/ diffrent race
+
 
 # table/figure: 
 
