@@ -60,6 +60,7 @@ library(tidyverse)
 library(readr)
 library(psych)
 library(kableExtra)
+
 dailydiary <- read_csv("TeleCom_Dyad_dailydiary.csv")
 premeasures <- read_csv("TeleCom_Dyad_premeasures.csv")
 #view(premeasures)
@@ -277,18 +278,6 @@ assembled_dataset <- assembled_dataset %>%
 
 ```
 
-# Measures:
-
-	**Relationship Satisfaction.** Relationship satisfaction was measured using 25 items from the Relationship Questionnaire (Burgess & Huston, 1979). Participants answered questions pertaining to their feelings about their partners and the quality of their relationship. Items included, “how much do you feel you ‘give’ to the relationship?” and “how attached do you feel to your partner?” Response options used a 9-part Likert scale ranging from 1=not at all to 9=very much. The mean for all 25 items was calculated for the outcome. Alpha was .9.
-	
-	**Distribution of Childcare Responsibilities.** Distribution of childcare chores was both a predictor and an outcome variable. For two weeks, participants kept daily diaries in which they recorded if they had spent any time on 16 childcare chores including “helped children with distance learning activities today” and “playing with your child today.” Participants responded by selecting “yes” or “no” for each daily activity. A total of tasks completed was summed for each participant and a percentage of tasks was calculated for each dyad. 
-	
-	**Objectification.** Self- and partner-objectification were both measured using 10 of the 12 items from Noll and Fredrickson’s Self-Objectification Questionnaire (1998). Five of the items pertain to attraction (weight, sex appeal, physical attractiveness, firm/sculpted muscles, and measurements) and five to competency (physical coordination, health, strength, energy level, and physical fitness level). Items included body characteristics. “Coloring” and “coordination” were the two items omitted. For self-objectification, participants ranked how they assigned each characteristic to their own physical self-concept and for partner-objectification they ranked how much they valued each characteristic in their partner. Ranking was done in ascending order from 1 (most) to 10 (least). Scores were found by summing the ranks for attraction and competency items separately. Scores range from -25 to 25, with higher scores representing a higher level of objectification.
-  
-  **Gatekeeping.** To measure gatekeeping in childcare tasks, eight items pertaining to childcare were used from the Orientation Toward Domestic Labor Questionnaire (Allen & Hawkins, 1998?). Participants answered to what extent they agreed or disagreed with statements regarding their partner. Items were modified to be gender neutral and included “I like to be in charge when it comes to caring for our child” and “My partner doesn’t really know how to do a lot of childcare tasks, so it's just easier if I do them.” Response options used a 5-part Likert scale ranging from 1=strongly disagree to 5=strongly agree. Outcome was calculated using the mean for all eight rows. Alpha was .86.
-  
-  **Number of Children.** Number of children was used a moderating variable. Participants were asked to record the number of children they had under the age of 13. 18 of the couples in our sample reported discrepancies of the number of children they had, with each partner reporting a different number. #What did we do about this
-
 
 #  Participants:
 
@@ -349,6 +338,18 @@ describe(destats)
 The current study includes 182 couples where 172 are heterosexual couples, 7 are same-sex female and 3 are same-sex male. The majority of the sample were married (91.8%) and  8.2% were not married but in a committed relationship.  Overall, the sample was split evenly between genders, with women making up 51% and men making up 49% of it. The majority of the sample was white (74%), 10% identified as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. The majority of the individuals reported working from home (61.5%) and 20% were working in person(the rest were either missing value or other). The average age for parents was 45.8(middle-age) with SD=8.35. Their average annual income was 76,618 and the variance in incom is significant with a SD=105,704. Finally, the reported number of children was 1.34 but the variance was big across the couples with an SD= 2.17.
 
 In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. Overall there are 172 different-gender couples and 10 same-sex couples. The majority of the couples were same race (322), and 42 were mixed-race.
+
+
+# Measures:
+
+  **Relationship Satisfaction.** Relationship satisfaction was measured using 25 items from Braiker and Kelly's Relationship Questionnaire [@-BraikerH]. Because we were evaluating relationship satisfaction levels of fathers, we omitted the Participants answered questions pertaining to their feelings about their partners and the quality of their relationship. Items included, “how much do you feel you ‘give’ to the relationship?” and “how attached do you feel to your partner?” Response options used a 9-part Likert scale ranging from 1=not at all to 9=very much. The mean for all 25 items was calculated for the outcome. Alpha was .9.
+  
+  **Distribution of Childcare Tasks.** Distribution of childcare chores was both a predictor and an outcome variable. For two weeks, participants kept daily diaries in which they recorded if they had spent any time on 16 childcare chores including “helped children with distance learning activities today” and “playing with your child today.” Participants responded by selecting “yes” or “no” for each daily activity. A total of tasks completed was summed for each participant and a percentage of tasks was calculated for each dyad. 
+  	
+  **Self-Objectification and Partner-Objectifcation.** Self- and partner-objectification were both measured using 10 of the 12 items from Noll and Fredrickson’s Self-Objectification Questionnaire [@-NollS]. Five of the items pertain to attraction (weight, sex appeal, physical attractiveness, firm/sculpted muscles, and measurements) and five to competency (physical coordination, health, strength, energy level, and physical fitness level). Items included body characteristics. “Coloring” and “coordination” were the two items omitted. For self-objectification, participants ranked how they assigned each characteristic to their own physical self-concept and for partner-objectification they ranked how much they valued each characteristic in their partner. Ranking was done in ascending order from 1 (most) to 10 (least). Scores were found by summing the ranks for attraction and competency items separately. Scores range from -25 to 25, with higher scores representing a higher level of objectification.
+  	
+  **Gatekeeping.** To measure gatekeeping in childcare tasks, eight items pertaining to childcare were used from the Orientation Toward Domestic Labor Questionnaire [@AllenS]. Participants answered to what extent they agreed or disagreed with statements regarding their partner. Items were modified to be gender neutral and included “I like to be in charge when it comes to caring for our child” and “My partner doesn’t really know how to do a lot of childcare tasks, so it's just easier if I do them.” Response options used a 5-part Likert scale ranging from 1=strongly disagree to 5=strongly agree. Outcome was calculated using the mean for all eight rows. Alpha was .86.
+
 
 # Table 1: 
 
