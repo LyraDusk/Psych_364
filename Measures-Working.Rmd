@@ -79,6 +79,9 @@ reverseScale9 <- function(x) {
   1 + 9 - x
 }
 
+
+### Basic Data Cleaning, Chores Calculations
+
 filter_children <- premeasures %>%
   select(ResponseId, dyadID, people_4_TEXT, people_5_TEXT) %>%
   mutate(people_4_TEXT = ifelse(is.na(people_4_TEXT), 0, people_4_TEXT)) %>%
@@ -98,6 +101,9 @@ chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "Respons
   summarize(total_chores = sum(total_chores))
 
 rm(clean_dd)
+
+
+### Self and Other Objectification Calculations
 
 comp_v <- c(1,2,4,7,9)
 attr_v <- c(3,5,6,8,10)
@@ -149,6 +155,8 @@ objectification <- objectification %>%
 
 rm(self_obj, other_obj, temp_obj_1, temp_obj_2)
 
+### Relationship Satisfaction Calculations and Alpha
+
 rel_qual <- premeasures %>%
   select(ResponseId, dyadID, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25) %>%
   mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
@@ -163,6 +171,9 @@ alpha(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relati
 rel_qual$total_relation_qual <- rowMeans(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25), na.rm = TRUE)
 rel_qual <- rel_qual %>%
   select(ResponseId, dyadID, total_relation_qual)
+
+
+### Gatekeeping Calculations and Alpha
 
 gatekeep <- premeasures %>%
   select(ResponseId, dyadID, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15) %>%
@@ -197,6 +208,8 @@ dd_gatekeep$gateTotal <- rowMeans(select(dd_gatekeep, gate1, gate2, gate3, gate4
 dd_gatekeep <- dd_gatekeep %>%
   group_by(partID) %>%
   summarize(dd_gateTotal = mean(gateTotal))
+
+### Assembling the tables together
 
 assembled_dataset <- premeasures %>%
   select(ResponseId, dyadID, gender, race, Q139) %>%
@@ -237,6 +250,8 @@ assembled_dataset <- assembled_dataset %>%
 #cleanup
 rm(total_childcare_temp, childcare_temp2)
 
+### Calculating the existence and number of children, and the number of discrepencies
+
 #Initial Corrections: 
 #The number of children entered by R_3Jgt1VbMKwbyTKE seems to be a typo, entered 10, partner put 0. 
 assembled_dataset <- assembled_dataset %>%
@@ -258,6 +273,8 @@ children_discrep <- children %>%
 
 rm(maxchildren, children)
 
+### Same Sex Relationship and Same Race Relationship markers
+
 same_sex <- assembled_dataset %>%
   mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
   group_by(dyadID) %>%
@@ -276,6 +293,24 @@ same_race <- assembled_dataset %>%
   distinct()
 assembled_dataset <- assembled_dataset %>%
   left_join(same_race, by = c("dyadID" = "dyadID"))
+
+
+### Marriage and Relationship Lengths, in years. Did not resolve disagreements. 
+
+getYear <- function(x){
+  parse_number(substr(x, nchar(x)-1, nchar(x)))
+}
+last_year_parsed <- premeasures %>%
+  select(ResponseId, dyadID, relation_length, married, marriage_length) %>%
+  #Parsing to the year number
+  mutate(relation_length = getYear(relation_length), marriage_length = getYear(marriage_length)) %>%
+  mutate(relation_length = (120 - relation_length) %% 100, marriage_length = (120 - marriage_length) %% 100) %>%
+  select(-dyadID)
+#Note: dyad 7403083 looks incredibly fucky. They don't agree whether they're married, disagree on relationship length by five years, and claim to have 33 children. ????
+
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(last_year_parsed)
 
 ```
 

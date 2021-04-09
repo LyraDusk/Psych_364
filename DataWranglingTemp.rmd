@@ -283,3 +283,21 @@ assembled_dataset <- assembled_dataset %>%
   left_join(same_race, by = c("dyadID" = "dyadID"))
 
 ```
+
+
+```{r rel_lengths}
+getYear <- function(x){
+  parse_number(substr(x, nchar(x)-1, nchar(x)))
+}
+last_year_parsed <- premeasures %>%
+  select(ResponseId, dyadID, relation_length, married, marriage_length) %>%
+  #Parsing to the year number
+  mutate(relation_length = getYear(relation_length), marriage_length = getYear(marriage_length)) %>%
+  mutate(relation_length = (120 - relation_length) %% 100, marriage_length = (120 - marriage_length) %% 100) %>%
+  select(-dyadID)
+#Note: dyad 7403083 looks incredibly fucky. They don't agree whether they're married, disagree on relationship length by five years, and claim to have 33 children. ????
+
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(last_year_parsed)
+```
