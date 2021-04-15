@@ -418,6 +418,42 @@ kbl(df)
 ## Data analysis
 We used `r cite_r("r-references.bib")` for all our analyses.
 
+## MLM and APIM
+
+```{r}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
+
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1)
+rm(children_only)
+
+
+library(nlme)
+mlm <- gls(childcare_tasks ~ self_obj_score + other_obj_score + self_obj_score * other_obj_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm)
+
+
+apim_in <- gls(childcare_tasks ~ self_obj_score_P + other_obj_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(apim_in)
+
+#looks interesting so far!
+```
+
+
+
 
 \newpage
 
