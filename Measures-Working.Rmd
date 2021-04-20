@@ -296,41 +296,41 @@ demographics<-premeasures %>%
 ```
 
 
-```{r include = FALSE, warning=FALSE,echo=FALSE}
+```{r}
 tally( ~ Q138, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ gender, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ race, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ wfh, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple, data = demographics)
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple_race, data = demographics)
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r }
 favstats(~ gatekeep_premeasures, data = assembled_dataset)
 favstats(~ relation_qual, data = assembled_dataset)
 ```
 
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 destats<-demographics %>%
   select(indinc,birthday,childnum)
 describe(destats)
