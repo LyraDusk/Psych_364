@@ -312,6 +312,31 @@ last_year_parsed <- premeasures %>%
 assembled_dataset <- assembled_dataset %>%
   left_join(last_year_parsed)
 
+
+
+
+### AMBIVALENT SEXISM INDEX CALCULATIONS ###
+
+asi_index <- premeasures %>%
+  select(ResponseId, dyadID, starts_with("asi_")) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
+  mutate_at(vars(asi_7, asi_21), reverseScale6)
+
+corr.test(select(asi_index, starts_with("asi_")))$r
+
+alpha(select(asi_index, starts_with("asi_")))
+#Alpha is 0.85 with 7 and 21 reversed. 7 and 13 could probably be dropped, as they're not really correlated with either side, but they're left in for now. 18 is also suspect.
+
+#for now: 
+asi_index$asi_score <- rowMeans(select(asi_index, starts_with("asi_")), na.rm = TRUE)
+asi_index <- asi_index %>%
+  select(ResponseId, dyadID, asi_score)
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(asi_index)
+
+rm(asi_index, same_race, same_sex, last_year_parsed)
+
 ```
 
 
