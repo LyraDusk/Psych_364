@@ -1,0 +1,100 @@
+---
+title             : "The title"
+shorttitle        : "Title"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Ernst-August Doelle"
+    affiliation   : "1,2"
+    role:
+      - Writing - Review & Editing
+
+affiliation:
+  - id            : "1"
+    institution   : "Wilhelm-Wundt-University"
+  - id            : "2"
+    institution   : "Konstanz Business School"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib", "annotated.bib"]
+nocite            : |
+  @CarlsonDDivision, @RhoadsS, @StrelanP, @ZurbriggenE, @RamseyL, @NewkirkK, @ChungH, @BleskeRechekA, @RhoadsS, @RadcliffeL, @ChickK, @BroseS, @SullivanO, @CraigL, @IshiiM, @WangR, @CarlsonD, @ChungH, @BjarnasonT, @DownsD, @RamseyL, @MaharE, @BrockR, @MercurioA, @CalogeroR
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+Equitable division of childcare labor increases relationship satisfaction in cohabiting couples (@CarlsonDDivision). Despite this, mothers still take on a greater share of childcare labor, even when they have the same job as their partner (@RhoadsS). Conversely, partner-objectification decreases relationship satisfaction for both men and women (@StrelanP; @ZurbriggenE) via self-objectification (@RamseyL).  
+	The present study examined division of childcare labor in a didactic framework of cohabiting couples; specifically, we examined the role of inequitable childcare labor division on fathers’ relationship satisfaction and the relationship between both self- and partner-objectification and the distribution of childcare labor tasks.
+	
+**Childcare labor and gender roles**  
+Cohabitating couples report less relationship conflict and higher relationship quality when division of childcare labor is equitable (@NewkirkK; @CarlsonDDivision). Despite this, women generally take on a greater share of childcare tasks than men (@ChungH; @BleskeRechekA), even when both partners have the same work responsibilities; in a study that examined married couples in which both partners were tenure track professors, fathers performed fewer childcare tasks than mothers, even when a more egalitarian attitude toward childcare labor was present (@RhoadsS).  
+  Although women report enjoying childcare tasks more than men (@BleskeRechekA), this may be due more to societal expectations that position women as the primary caretaker of children (@RadcliffeL) rather than a biological drive. Socialization of gender roles begins in infancy, with boys and girls receiving different gendered messaging from caretakers. Boys receive more attention from daycare workers and are more likely to receive comments about their size and physical abilities while girls are more likely to be reinforced for their appearance and helping behaviors. These types of messages teach young children that a girl’s role is oriented toward domestic work (@ChickK). In one study, most adolescents chose the mother as the parent who should stay home to care for children in equal earning couples, citing women’s social role as caretakers as a primary reason (@BroseS).  
+  However, gender normative views on childcare might not be static. Very low fertility countries that have recently seen an increase in fertility rates also saw an increase in childcare labor contributions from young, more highly educated fathers. These countries also saw a corresponding decline in the percentage of men agreeing with the statement, “A man’s job is to earn money; a woman’s job is to look after the home and family” (@SullivanO), suggesting social diffusion of a change in attitudes toward gender roles and domestic labor. Additionally, men with higher levels of education (@CraigL; @SullivanO) and lower levels of work-related stress (@IshiiM) are more likely to be involved in childcare labor. 
+  As mothers’ participation in the workforce has increased, so has fathers’ involvement in childcare labor (@WangR). Recently, fathers who have transitioned to work-from-home positions due to restrictions from the Covid-19 pandemic have increased the amount of time spent taking care of children (@CarlsonD; @ChungH). While men reported higher relationship satisfaction when division of household tasks were equitably distributed (@BjarnasonT), men who spent more time on childcare tasks reported reduced sexual satisfaction in their relationships(@CarlsonD). We predicted that men who subvert traditional gender roles by performing a greater share of childcare labor than their spouse would experience lower relationship satisfaction. 
+
+**Objectification**
+Objectification involves treating a person as an object. Higher levels of objectification in a relationship lead to reduced relationship satisfaction (@DownsD; @ZurbriggenE; @StrelanP; @RamseyL; @MaharE).  
+Partners who are objectified have lower relationship satisfaction (People who partner-objectify have lower relationships satisfaction (@DownsD; @ZurbriggenE; @MaharE)  
+Partners who partner-objectify have lower relationship satisfaction (@ZurbriggenE; @MaharE)  
+People who partner-objectify can less relationship commitment (@MaharE)  
+Lower partner-objectification is associated with fewer depression symptoms and increased sexual satisfaction (@BrockR)  
+Women who enjoy being sexualized are more likely to experience partner objectification (@RamseyL)
+Partner-objectification leads to self-objectification (@RamseyL; @StrelanP)
+People who other- and self-objectify are more likely to choose partners who also self- and other-objectify (@StrelanP)
+Self-objectification leads to reduced self-esteem (@MercurioA; @StrelanP)
+Self-objectification leads to lower life satisfaction (@MercurioA)
+Women who self-objectify are less likely to be involved in gender-based social activism (@CalogeroR)
+
+
+
+
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
