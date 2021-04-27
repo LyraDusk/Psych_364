@@ -79,6 +79,10 @@ reverseScale9 <- function(x) {
   1 + 9 - x
 }
 
+reverseScale6 <- function(x) {
+  7 - x
+}
+
 
 ### Basic Data Cleaning, Chores Calculations
 
@@ -336,6 +340,11 @@ assembled_dataset <- assembled_dataset %>%
   left_join(asi_index)
 
 rm(asi_index, same_race, same_sex, last_year_parsed)
+
+#####################################
+### DELETE THIS IN FINAL DRAFTING ###
+#####################################
+write_csv(assembled_dataset, file = "assembled-dataset.csv")
 
 ```
 

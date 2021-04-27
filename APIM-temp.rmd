@@ -1,0 +1,76 @@
+---
+title: "APIM-temp"
+author: "Lauren Meyer"
+date: "April 27, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mosaic)
+library(lubridate)
+library(nlme)
+library(tidyverse)
+library(readr)
+library(psych)
+library(kableExtra)
+```
+
+
+```{r}
+### This file is for my use only, I want to be able to work on this without worrying about merge conflicts. Please don't edit unless we've talked about it. ###
+
+assembled_dataset <- read_csv("assembled-dataset.csv")
+
+```
+
+
+
+```{r}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
+
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1) %>%
+  mutate(gender = ifelse(gender == "Man,Cis gendered", "Man", gender)) %>%
+  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender))
+rm(children_only)
+
+```
+
+```{r}
+Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(Basic_Objectification)
+#Women in general do more tasks than men. Women who objectify themselves more also do more tasks, as do women whose partners objectify them. 
+```
+
+
+```{r}
+with_gatekeeping <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_premeasures + gatekeep_premeasures*gender,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(with_gatekeeping)
+
+#Gatekeeping definitely seems to have an effect. 
+```
+
+```{r}
+amb_sexism <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + asi_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(amb_sexism)
+## ASI does not seem to have much of an effect
+```
+
