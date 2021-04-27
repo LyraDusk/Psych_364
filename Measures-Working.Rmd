@@ -1,5 +1,5 @@
 ---
-title             : "Measures"
+title             : "Measures and Descriptive Statistics"
 shorttitle        : "Measures"
 
 author: 
@@ -45,6 +45,7 @@ output            : papaja::apa6_pdf
 library(papaja)
 library(mosaic)
 library(lubridate)
+library(nlme)
 r_refs("r-references.bib")
 ```
 
@@ -78,6 +79,9 @@ reverseScale9 <- function(x) {
   1 + 9 - x
 }
 
+
+### Basic Data Cleaning, Chores Calculations
+
 filter_children <- premeasures %>%
   select(ResponseId, dyadID, people_4_TEXT, people_5_TEXT) %>%
   mutate(people_4_TEXT = ifelse(is.na(people_4_TEXT), 0, people_4_TEXT)) %>%
@@ -97,6 +101,9 @@ chores_final <- inner_join(clean_dd, filter_children, by = c("partID" = "Respons
   summarize(total_chores = sum(total_chores))
 
 rm(clean_dd)
+
+
+### Self and Other Objectification Calculations
 
 comp_v <- c(1,2,4,7,9)
 attr_v <- c(3,5,6,8,10)
@@ -148,6 +155,8 @@ objectification <- objectification %>%
 
 rm(self_obj, other_obj, temp_obj_1, temp_obj_2)
 
+### Relationship Satisfaction Calculations and Alpha
+
 rel_qual <- premeasures %>%
   select(ResponseId, dyadID, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25) %>%
   mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
@@ -162,6 +171,9 @@ alpha(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relati
 rel_qual$total_relation_qual <- rowMeans(select(rel_qual, relation_qual_1, relation_qual_2, relation_qual_3, relation_qual_4, relation_qual_5, relation_qual_6, relation_qual_7, relation_qual_8, relation_qual_9, relation_qual_10, relation_qual_11, relation_qual_12, relation_qual_13, relation_qual_14, relation_qual_15, relation_qual_16, relation_qual_17, relation_qual_18, relation_qual_19, relation_qual_20, relation_qual_21, relation_qual_22, relation_qual_23, relation_qual_24, relation_qual_25), na.rm = TRUE)
 rel_qual <- rel_qual %>%
   select(ResponseId, dyadID, total_relation_qual)
+
+
+### Gatekeeping Calculations and Alpha
 
 gatekeep <- premeasures %>%
   select(ResponseId, dyadID, gatekeeping_1, gatekeeping_4,  gatekeeping_6, gatekeeping_8, gatekeeping_10, gatekeeping_12, gatekeeping_14, gatekeeping_15) %>%
@@ -196,6 +208,8 @@ dd_gatekeep$gateTotal <- rowMeans(select(dd_gatekeep, gate1, gate2, gate3, gate4
 dd_gatekeep <- dd_gatekeep %>%
   group_by(partID) %>%
   summarize(dd_gateTotal = mean(gateTotal))
+
+### Assembling the tables together
 
 assembled_dataset <- premeasures %>%
   select(ResponseId, dyadID, gender, race, Q139) %>%
@@ -236,6 +250,8 @@ assembled_dataset <- assembled_dataset %>%
 #cleanup
 rm(total_childcare_temp, childcare_temp2)
 
+### Calculating the existence and number of children, and the number of discrepencies
+
 #Initial Corrections: 
 #The number of children entered by R_3Jgt1VbMKwbyTKE seems to be a typo, entered 10, partner put 0. 
 assembled_dataset <- assembled_dataset %>%
@@ -257,6 +273,8 @@ children_discrep <- children %>%
 
 rm(maxchildren, children)
 
+### Same Sex Relationship and Same Race Relationship markers
+
 same_sex <- assembled_dataset %>%
   mutate(gender = ifelse(gender == "Man", 0, 1)) %>%
   group_by(dyadID) %>%
@@ -275,6 +293,49 @@ same_race <- assembled_dataset %>%
   distinct()
 assembled_dataset <- assembled_dataset %>%
   left_join(same_race, by = c("dyadID" = "dyadID"))
+
+
+### Marriage and Relationship Lengths, in years. Did not resolve disagreements. 
+
+getYear <- function(x){
+  parse_number(substr(x, nchar(x)-1, nchar(x)))
+}
+last_year_parsed <- premeasures %>%
+  select(ResponseId, dyadID, relation_length, married, marriage_length) %>%
+  #Parsing to the year number
+  mutate(relation_length = getYear(relation_length), marriage_length = getYear(marriage_length)) %>%
+  mutate(relation_length = (120 - relation_length) %% 100, marriage_length = (120 - marriage_length) %% 100) %>%
+  select(-dyadID)
+#Note: dyad 7403083 looks incredibly fucky. They don't agree whether they're married, disagree on relationship length by five years, and claim to have 33 children. ????
+
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(last_year_parsed)
+
+
+
+
+### AMBIVALENT SEXISM INDEX CALCULATIONS ###
+
+asi_index <- premeasures %>%
+  select(ResponseId, dyadID, starts_with("asi_")) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
+  mutate_at(vars(asi_7, asi_21), reverseScale6)
+
+corr.test(select(asi_index, starts_with("asi_")))$r
+
+alpha(select(asi_index, starts_with("asi_")))
+#Alpha is 0.85 with 7 and 21 reversed. 7 and 13 could probably be dropped, as they're not really correlated with either side, but they're left in for now. 18 is also suspect.
+
+#for now: 
+asi_index$asi_score <- rowMeans(select(asi_index, starts_with("asi_")), na.rm = TRUE)
+asi_index <- asi_index %>%
+  select(ResponseId, dyadID, asi_score)
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(asi_index)
+
+rm(asi_index, same_race, same_sex, last_year_parsed)
 
 ```
 
@@ -295,60 +356,71 @@ demographics<-premeasures %>%
 ```
 
 
-```{r include = FALSE, warning=FALSE,echo=FALSE}
+```{r}
 tally( ~ Q138, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ gender, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ race, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ wfh, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple, data = demographics)
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple_race, data = demographics)
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 tally( ~ couple, data = demographics, format='percent')
 ```
 
-```{r include = FALSE, echo=FALSE}
+```{r }
 favstats(~ gatekeep_premeasures, data = assembled_dataset)
 favstats(~ relation_qual, data = assembled_dataset)
 ```
 
 
-```{r include = FALSE, echo=FALSE}
+```{r}
 destats<-demographics %>%
   select(indinc,birthday,childnum)
 describe(destats)
 ```
 
-The current study includes 182 couples where 172 are heterosexual couples, 7 are same-sex female and 3 are same-sex male. The majority of the sample were married (91.8%) and  8.2% were not married but in a committed relationship.  Overall, the sample was split evenly between genders, with women making up 51% and men making up 49% of it. The majority of the sample was white (74%), 10% identified as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. The majority of the individuals reported working from home (61.5%) and 20% were working in person(the rest were either missing value or other). The average age for parents was 45.8(middle-age) with SD=8.35. Their average annual income was 76,618 and the variance in incom is significant with a SD=105,704. Finally, the reported number of children was 1.34 but the variance was big across the couples with an SD= 2.17.
+The current study included 182 couples. 172 couples were heterosexual, 7 were same-sex female, and 3 were same-sex male. The majority of couples were married (91.8%), while 8.2% were not married but in a committed relationship. Overall, the sample was split evenly between genders, with women making up 51% and men making up 49%. Most of the participants in the sample identified as white (74%), 10% as Asian or Asian American, 6.6% as Black or African American, and 5.8% as Latinx or Hispanic. 4 individuals identified as Middle Eastern, and 5 replied Other or Prefer not to Answer. The majority of the individuals reported working from home (61.5%), 20% were working in person, and 18.5% did not answer the question or reported Other. The average age for participants was 45.8 (middle-age) with SD = 8.35. Their average annual income was \$76,618 and the variance in income was wide with a SD = $105,704. 120 couples had children, while 62 did not. Finally, the reported number of children was 1.34 but the variance was large across the couples with an SD = 2.17. 18 couples had discrepancies in the reported number of children, with individuals disagreeing. We used the higher reported number, as we decided that it was more likely for children to be disregarded than fabricated. 
 
-In our analysis we discarded participants who did not answer most of the questions or missed questions that are crucial to our analysis. Specifically for our first reasearch question we decided not to include the 7 same-sex female couples since  we were mostly focsused on the connection between childcare tasks and relationship quality for men. Overall there are 172 different-gender couples and 10 same-sex couples. The majority of the couples were same race (322), and 42 were mixed-race.
+  We omitted participants who did not answer questions that were crucial to our analysis. Since our first research question measured the relationship satisfaction among fathers, we omitted the 7 same-sex female couples from that part of the analysis. Overall there were 172 different-gender couples and 10 same-sex couples. 161 couples were same-race and 21 were mixed-race.
 
+```{r include=FALSE, echo=FALSE}
+icc_mod  <- gls(relation_qual ~ gender, 
+                 na.action=na.omit, 
+                 correlation=corCompSymm (form=~1|dyadID), 
+                 data=assembled_dataset)
+```
+
+
+```{r , include=FALSE, echo=FALSE}
+coef(icc_mod$model$corStruct, unconstrained = FALSE)
+```
 
 # Measures:
 
-  **Relationship Satisfaction.** Relationship satisfaction was measured using 25 items from Braiker and Kelly's Relationship Questionnaire [@-BraikerH]. Because we were evaluating relationship satisfaction levels of fathers, we omitted the Participants answered questions pertaining to their feelings about their partners and the quality of their relationship. Items included, “how much do you feel you ‘give’ to the relationship?” and “how attached do you feel to your partner?” Response options used a 9-part Likert scale ranging from 1=not at all to 9=very much. The mean for all 25 items was calculated for the outcome. Alpha was .9.
+  **Relationship Satisfaction.** Relationship satisfaction was measured using 25 items from the Relationship Questionnaire [@BraikerH]. Participants answered questions pertaining to their feelings about their partner and the quality of their relationship. Items included, “how much do you feel you ‘give’ to the relationship?” and “how attached do you feel to your partner?” Response options used a 9-part Likert scale ranging from 1=not at all to 9=very much. The mean for all 25 items was calculated for the outcome. Alpha was .9. The partial intraclass correlation between the two partners’ relationship satisfaction, controlling for gender, is 0.707.
   
-  **Distribution of Childcare Tasks.** Distribution of childcare chores was both a predictor and an outcome variable. For two weeks, participants kept daily diaries in which they recorded if they had spent any time on 16 childcare chores including “helped children with distance learning activities today” and “playing with your child today.” Participants responded by selecting “yes” or “no” for each daily activity. A total of tasks completed was summed for each participant and a percentage of tasks was calculated for each dyad. 
+  **Distribution of Childcare Tasks.** Distribution of childcare tasks was both a predictor for fathers' relationship satisfaction and self-objectification and an outcome variable for partner-objectification. For two weeks, participants kept daily diaries in which they recorded if they had spent any time on 16 childcare chores including “helped children with distance learning activities today” and “playing with your child today.” Participants responded by selecting “yes” or “no” for each daily activity. A total number of tasks completed was summed for each participant and a percentage of tasks was calculated for each couple. 
   	
-  **Self-Objectification and Partner-Objectifcation.** Self- and partner-objectification were both measured using 10 of the 12 items from Noll and Fredrickson’s Self-Objectification Questionnaire [@-NollS]. Five of the items pertain to attraction (weight, sex appeal, physical attractiveness, firm/sculpted muscles, and measurements) and five to competency (physical coordination, health, strength, energy level, and physical fitness level). Items included body characteristics. “Coloring” and “coordination” were the two items omitted. For self-objectification, participants ranked how they assigned each characteristic to their own physical self-concept and for partner-objectification they ranked how much they valued each characteristic in their partner. Ranking was done in ascending order from 1 (most) to 10 (least). Scores were found by summing the ranks for attraction and competency items separately. Scores range from -25 to 25, with higher scores representing a higher level of objectification.
+  **Self-Objectification and Partner-Objectifcation.** Self- and partner-objectification were both measured using 10 of the 12 items from the Self-Objectification Questionnaire [@NollS]. Five of the items pertain to attraction (weight, sex appeal, physical attractiveness, firm/sculpted muscles, and measurements) and five to competency (physical coordination, health, strength, energy level, and physical fitness level). “Coloring” and “coordination” were omitted. For self-objectification, participants ranked how they assigned each characteristic to their own physical self-concept and for partner-objectification they ranked how much they valued each characteristic in their partner. Ranking was done in ascending order from 1 (most) to 10 (least). Scores were found by summing the ranks for attraction and competency items separately. Scores range from -25 to 25, with higher scores representing a higher level of objectification.
   	
-  **Gatekeeping.** To measure gatekeeping in childcare tasks, eight items pertaining to childcare were used from the Orientation Toward Domestic Labor Questionnaire [@AllenS]. Participants answered to what extent they agreed or disagreed with statements regarding their partner. Items were modified to be gender neutral and included “I like to be in charge when it comes to caring for our child” and “My partner doesn’t really know how to do a lot of childcare tasks, so it's just easier if I do them.” Response options used a 5-part Likert scale ranging from 1=strongly disagree to 5=strongly agree. Outcome was calculated using the mean for all eight rows. Alpha was .86.
+  **Gatekeeping.** To measure gatekeeping in childcare tasks, eight items pertaining to childcare were used from the Orientation Toward Domestic Labor Questionnaire [@AllenS]. Participants answered to what extent they agreed or disagreed with statements regarding their partner. Items were modified to be gender neutral and included “I like to be in charge when it comes to caring for our child” and “My partner doesn’t really know how to do a lot of childcare tasks, so it's just easier if I do them.” Response options used a 5-part Likert scale ranging from 1=strongly disagree to 5=strongly agree. The outcome was calculated using the mean for all eight rows. Alpha was .86.
 
 
 # Table 1: 
@@ -356,11 +428,11 @@ In our analysis we discarded participants who did not answer most of the questio
 
 ```{r}
 df <- read.table(text = 
-"annual_income($)  76,618.80    105,704.12
-age  45.80   8.35
-number_of_children  1.34     2.17
-gatekeeping  3.00     0.92
-relationship_satisfaction  6.47     1.31"
+"'Annual Income ($)'  76,618.80    105,704.12
+Age  45.80   8.35
+'Number of Children'  1.34     2.17
+Gatekeeping  3.00     0.92
+'Relationship Satisfaction'  6.47     1.31"
 )
 names(df) <- c("Measures","mean","SD")
 kable(df, caption = "Descriptive Statistics")
@@ -371,10 +443,41 @@ kbl(df)
 ## Data analysis
 We used `r cite_r("r-references.bib")` for all our analyses.
 
+## MLM and APIM
 
-# Results
+```{r}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
 
-# Discussion
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1)
+rm(children_only)
+
+
+library(nlme)
+mlm <- gls(childcare_tasks ~ self_obj_score + other_obj_score + self_obj_score * other_obj_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm)
+
+
+apim_in <- gls(childcare_tasks ~ self_obj_score_P + other_obj_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(apim_in)
+
+#looks interesting so far!
+```
+
+
 
 
 \newpage

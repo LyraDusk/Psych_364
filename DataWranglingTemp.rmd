@@ -37,6 +37,10 @@ reverseScale9 <- function(x) {
   1 + 9 - x
 }
 
+reverseScale6 <- function(x) {
+  7 - x
+}
+
 ```
 
 ## Chores
@@ -282,4 +286,49 @@ same_race <- assembled_dataset %>%
 assembled_dataset <- assembled_dataset %>%
   left_join(same_race, by = c("dyadID" = "dyadID"))
 
+rm(same_race, same_sex)
+
+```
+
+
+```{r rel_lengths}
+getYear <- function(x){
+  parse_number(substr(x, nchar(x)-1, nchar(x)))
+}
+last_year_parsed <- premeasures %>%
+  select(ResponseId, dyadID, relation_length, married, marriage_length) %>%
+  #Parsing to the year number
+  mutate(relation_length = getYear(relation_length), marriage_length = getYear(marriage_length)) %>%
+  mutate(relation_length = (120 - relation_length) %% 100, marriage_length = (120 - marriage_length) %% 100) %>%
+  select(-dyadID)
+#Note: dyad 7403083 looks incredibly fucky. They don't agree whether they're married, disagree on relationship length by five years, and claim to have 33 children. ????
+
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(last_year_parsed)
+
+rm(last_year_parsed)
+```
+
+
+```{r ASI}
+asi_index <- premeasures %>%
+  select(ResponseId, dyadID, starts_with("asi_")) %>%
+  mutate_at(vars(-ResponseId, -dyadID), stripChars) %>%
+  mutate_at(vars(asi_7, asi_21), reverseScale6)
+
+corr.test(select(asi_index, starts_with("asi_")))$r
+
+alpha(select(asi_index, starts_with("asi_")))
+#Alpha is 0.85 with 7 and 21 reversed. 7 and 13 could probably be dropped, as they're not really correlated with either side, but they're left in for now. 18 is also suspect.
+
+#for now: 
+asi_index$asi_score <- rowMeans(select(asi_index, starts_with("asi_")), na.rm = TRUE)
+asi_index <- asi_index %>%
+  select(ResponseId, dyadID, asi_score)
+
+assembled_dataset <- assembled_dataset %>%
+  left_join(asi_index)
+
+rm(asi_index)
 ```
