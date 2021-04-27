@@ -49,20 +49,49 @@ Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*
            na.action = na.omit)
 
 summary(Basic_Objectification)
-#Women in general do more tasks than men. Women who objectify themselves more also do more tasks, as do women whose partners objectify them. 
+#Women in general do more tasks than men. People who objectify themselves more do more tasks. Curiously, men whose partners objectify them more do more childcare tasks (though insignificant), and women whose partners objectify them more do fewer childcare tasks. 
 ```
 
 
 ```{r}
-with_gatekeeping <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_premeasures + gatekeep_premeasures*gender,
+gk_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+
+```
+
+```{r}
+with_gatekeeping <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
 
 summary(with_gatekeeping)
 
-#Gatekeeping definitely seems to have an effect. 
+#Gatekeeping definitely seems to have an effect, though it's curious. Men who gatekeep more tend to do more childcare tasks the more they gatekeep, while women who gatekeep more, though still doing more tasks, do way fewer excess tasks than gatekeeping men. I set up an APIM for this alone, I'm curious. 
+# Surprisingly, partner gatekeeping does not seem to have much of an effect, not nearly as much as actor gatekeeping. Huh. 
 ```
+
 
 ```{r}
 amb_sexism <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + asi_score,
@@ -71,6 +100,7 @@ amb_sexism <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_s
            na.action = na.omit)
 
 summary(amb_sexism)
-## ASI does not seem to have much of an effect
+## ASI does not seem to have much of an effect, probably no further use. 
 ```
 
+Main takeaway so far is that the correlation between objectification and childcare task load seems to have held up fairly well through various levels of moderation and controlling. Which is good. That's very good.
