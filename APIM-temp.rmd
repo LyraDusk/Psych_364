@@ -104,3 +104,41 @@ summary(amb_sexism)
 ```
 
 Main takeaway so far is that the correlation between objectification and childcare task load seems to have held up fairly well through various levels of moderation and controlling. Which is good. That's very good.
+
+```{r}
+apim_full <- gls(childcare_tasks ~ self_obj_score  + other_obj_score + self_obj_score_P + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(apim_full)
+
+```
+
+```{r}
+predicting_selfobj <- gls(self_obj_score ~ childcare_tasks + other_obj_score_P + gatekeep_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(predicting_selfobj)
+```
+
+```{r}
+partner_obj <- gls(childcare_tasks ~ other_obj_score + self_obj_score_P + gender + other_obj_score * gender,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+summary(partner_obj)
+```
+
+
+```{r}
+second_apim <- gls(relation_qual ~ self_obj_score + gender + gender*self_obj_score + self_obj_score_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(second_apim)
+## Nothing here is significant
+```
