@@ -22,6 +22,7 @@ library(tidyverse)
 library(readr)
 library(psych)
 library(kableExtra)
+assembled-dataset<- read_csv("assembled-dataset.csv")
 ```
 
 ```{r}
