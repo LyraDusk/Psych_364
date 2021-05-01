@@ -1,0 +1,75 @@
+---
+title: "q1"
+output: html_document
+---
+```{r setup, include = FALSE}
+library(papaja)
+library(mosaic)
+library(lubridate)
+library(nlme)
+r_refs("r-references.bib")
+```
+
+
+```{r analysis-preferences, include = FALSE}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+```{r include = FALSE, echo=FALSE}
+library(tidyverse)
+library(readr)
+library(psych)
+library(kableExtra)
+```
+
+```{r}
+fathers<-subset(assembled_dataset, gender="Man")%>%
+mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
+  
+  
+mlm <- gls(relation_qual ~ childcare_tasks, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm)
+```
+
+```{r}
+mlm1 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+childcare_tasks:gatekeep_premeasures, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm1)
+```
+
+```{r}
+
+mlm2 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+childcare_tasks*gatekeep_premeasures, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm2)
+```
+
+```{r}
+mlm3 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm3)
+```
+
+```{r}
+mlm4 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework+childcare_tasks*gatekeep_premeasures+childcare_tasks*telework, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm4)
+```
