@@ -74,3 +74,9 @@ mlm4 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework+childc
 
 summary(mlm4)
 ```
+
+```{r}
+ggplot(data=fathers, aes(x=childcare_tasks, y=relation_qual))+ylim(0, 9)+geom_smooth(method="lm",se=FALSE)+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))
+```
+
