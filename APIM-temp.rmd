@@ -37,7 +37,8 @@ children_and_tasks <- assembled_dataset %>%
   filter(!is.na(childcare_notNA)) %>%
   filter(children_any == 1) %>%
   mutate(gender = ifelse(gender == "Man,Cis gendered", "Man", gender)) %>%
-  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender))
+  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender)) %>%
+  mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
 rm(children_only)
 
 ```
@@ -81,7 +82,37 @@ rm(gk_temp_1, gk_temp_2)
 ```
 
 ```{r}
-with_gatekeeping <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
+cc_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(Childcare_P1 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P1)
+
+cc_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(Childcare_P2 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(cc_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(cc_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(childcare_tasks_P = ifelse(is.na(Childcare_P1), Childcare_P2, Childcare_P1)) %>%
+  select(-ind, -Childcare_P2, -Childcare_P1) %>%
+  rename(childcare_tasks_A = childcare_tasks)
+
+rm(cc_temp_1, cc_temp_2)
+
+
+```
+
+
+
+```{r}
+with_gatekeeping <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
@@ -94,7 +125,7 @@ summary(with_gatekeeping)
 
 
 ```{r}
-amb_sexism <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P + asi_score,
+amb_sexism <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + asi_score,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
@@ -106,7 +137,7 @@ summary(amb_sexism)
 Main takeaway so far is that the correlation between objectification and childcare task load seems to have held up fairly well through various levels of moderation and controlling. Which is good. That's very good.
 
 ```{r}
-apim_full <- gls(childcare_tasks ~ self_obj_score  + other_obj_score + self_obj_score_P + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
+apim_full <- gls(childcare_tasks_A ~ self_obj_score  + other_obj_score + self_obj_score_P + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
@@ -141,4 +172,33 @@ second_apim <- gls(relation_qual ~ self_obj_score + gender + gender*self_obj_sco
 
 summary(second_apim)
 ## Nothing here is significant
+```
+
+
+```{r}
+apim_in_empty <- gls(childcare_tasks_A ~ 1,
+                     data = children_and_tasks,
+                     correlation = corCompSymm(form=~1|dyadID),
+                     na.action = na.omit)
+
+summary(apim_in_empty)
+
+apim_in_empty$sigma^2
+
+#to have R calculate the R2.
+r2 <- 1-(with_gatekeeping$sigma^2/apim_in_empty$sigma^2)
+r2
+```
+
+No significant effects of Race
+Attempts to add in a childcare partner effect caused really weird effects
+```{r}
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + relation_length,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(apim_final)
+r2 <- 1-(apim_final$sigma^2/apim_in_empty$sigma^2)
+r2
 ```
