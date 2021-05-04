@@ -41,6 +41,14 @@ children_and_tasks <- assembled_dataset %>%
   mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
 rm(children_only)
 
+
+full_dyads <- children_and_tasks %>%
+  group_by(dyadID) %>%
+  summarize(n = n())
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(assembled_dataset$gatekeep_premeasures, na.rm = TRUE))
+
 ```
 
 ```{r}
@@ -193,7 +201,7 @@ r2
 No significant effects of Race
 Attempts to add in a childcare partner effect caused really weird effects
 ```{r}
-apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + relation_length,
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gender*gatekeep_A + relation_length,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
