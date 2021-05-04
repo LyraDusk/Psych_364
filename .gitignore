@@ -44,6 +44,9 @@ TeleCom_Dyad_dailydiary.csv
 TeleCom_Dyad_premeasures.csv
 assembled-dataset.csv
 
+#accident cleanup
+Measures-Working - Copy.rmd 
+
 # Knit output files
 DataWranglingTemp.html
 measures.html
@@ -53,4 +56,4 @@ Introduction.tex
 Measures-Working.tex
 Measures-Working.ttt
 APIM-temp.html
-r-reference.bib
+r-references.bib

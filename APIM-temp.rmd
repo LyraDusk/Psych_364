@@ -47,7 +47,7 @@ full_dyads <- children_and_tasks %>%
   summarize(n = n())
 
 children_and_tasks <- children_and_tasks %>%
-  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(assembled_dataset$gatekeep_premeasures, na.rm = TRUE))
+  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(children_and_tasks$gatekeep_premeasures, na.rm = TRUE))
 
 ```
 
