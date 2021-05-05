@@ -201,7 +201,18 @@ r2
 No significant effects of Race
 Attempts to add in a childcare partner effect caused really weird effects
 ```{r}
-apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gender*gatekeep_A + relation_length,
+apim_final_withpartner <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + other_obj_score,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(apim_final_withpartner)
+
+```
+
+
+```{r}
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)

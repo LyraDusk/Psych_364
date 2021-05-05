@@ -1,0 +1,212 @@
+---
+title             : "The title"
+shorttitle        : "Title"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Ernst-August Doelle"
+    affiliation   : "1,2"
+    role:
+      - Writing - Review & Editing
+
+affiliation:
+  - id            : "1"
+    institution   : "Wilhelm-Wundt-University"
+  - id            : "2"
+    institution   : "Konstanz Business School"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  hi
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+library(tidyverse)
+library(nlme)
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+
+
+```{r}
+### This file is for my use only, I want to be able to work on this without worrying about merge conflicts. Please don't edit unless we've talked about it. ###
+
+assembled_dataset <- read_csv("assembled-dataset.csv")
+
+```
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+
+```{r}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
+
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1) %>%
+  mutate(gender = ifelse(gender == "Man,Cis gendered", "Man", gender)) %>%
+  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender)) %>%
+  mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
+rm(children_only)
+
+
+full_dyads <- children_and_tasks %>%
+  group_by(dyadID) %>%
+  summarize(n = n())
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(children_and_tasks$gatekeep_premeasures, na.rm = TRUE))
+
+```
+
+```{r}
+Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(Basic_Objectification)
+#Women in general do more tasks than men. People who objectify themselves more do more tasks. Curiously, men whose partners objectify them more do more childcare tasks (though insignificant), and women whose partners objectify them more do fewer childcare tasks. 
+```
+
+
+```{r}
+gk_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+
+```
+
+```{r}
+cc_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(Childcare_P1 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P1)
+
+cc_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(Childcare_P2 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(cc_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(cc_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(childcare_tasks_P = ifelse(is.na(Childcare_P1), Childcare_P2, Childcare_P1)) %>%
+  select(-ind, -Childcare_P2, -Childcare_P1) %>%
+  rename(childcare_tasks_A = childcare_tasks)
+
+rm(cc_temp_1, cc_temp_2)
+
+
+```
+
+
+```{r}
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+coeffs <- coef(apim_final)
+summarized <- summary(apim_final)
+t_table <- summarized$tTable
+t_table <- data.frame(t_table)
+row.names(t_table) <- c("Intercept","Self Objectification Score", "Female Gender", "Recieved Partner Objectification", "Gatekeeping", "Recieved Partner Objectification * Female Gender")
+t_table <- t_table %>%
+  select(-Std.Error) %>%
+  rename(B = Value,'t' = t.value, 'p' = p.value)
+```
+
+Literally just using this doc to make sure that Papaja behaves...
+
+```{r test}
+a <- unname(coeffs)
+b <- names(coeffs)
+test <- data.frame(a, b)
+t_table <- printnum(t_table)
+
+apa_table(
+  t_table, 
+  caption = "Descriptive statistics of correct recall by dosage.",
+  note = "This table was created with apa_table()",
+  escape = TRUE
+)
+
+```
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
