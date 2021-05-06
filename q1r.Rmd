@@ -36,7 +36,7 @@ mutate(gatekeep_premeasures = gatekeep_premeasures - mean(fathers$gatekeep_preme
 ```
 
 ```{r}
-#fathers_APIM<-fathers
+fathers_APIM<-fathers
 ```
 
 
@@ -118,50 +118,6 @@ mlm_high <- gls(relation_qual ~ childcare_tasks
 
 summary(mlm_high)
 ```
-
-childcare tasks dont affect relatioship satisfaction when gatekeeping for both actor and partner is at the mean(p-val=0.4425)
-when childcare tasks is at 0, then when their gatekeeping increases by 1 unit, they relationship satisfaction goes down by 0.5()
-when childcare tasks is at 0, then when their partner's  gatekeeping increases by 1 unit, they relationship satisfaction goes down by 0.47()
-the negative effect of partner's gatekeeping on the father's relationship satisfaction is reduced by 0.002823 when theirchildcare tasks increase by 1. 
-if the partner gatekeeps more than more positive
-
-```{r}
-
-mlm2 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+childcare_tasks*gatekeep_premeasures, 
-           data = fathers,
-           correlation = corCompSymm(form=~1|dyadID),
-           na.action = na.omit)
-
-summary(mlm2)
-```
-
-```{r}
-mlm3 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework, 
-           data = fathers,
-           correlation = corCompSymm(form=~1|dyadID),
-           na.action = na.omit)
-
-summary(mlm3)
-```
-
-```{r}
-mlm4 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework+childcare_tasks*gatekeep_premeasures+childcare_tasks*telework, 
-           data = fathers,
-           correlation = corCompSymm(form=~1|dyadID),
-           na.action = na.omit)
-
-summary(mlm4)
-```
-
-```{r}
-mlm5 <- gls(relation_qual ~ childcare_tasks+gatekeep_A+gatekeep_P+telework+childcare_tasks*gatekeep_A+childcare_tasks*gatekeep_P+childcare_tasks*telework, 
-           data = fathers_APIM,
-           correlation = corCompSymm(form=~1|dyadID),
-           na.action = na.omit)
-
-summary(mlm5)
-```
-
 
 
 #Analysis strategy:
