@@ -168,7 +168,7 @@ summary(mlm_high)
 ## Analysis strategy:
 
 ### First Hypothesis
-We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. We used multilevel modeling and the Actor-Partner Interdependence Model [@Kenny] to test interaction between childcare, actor gatekeeping and partner gatekeeping . The APIM allows us to assess how the fathers and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model including father's childcare, actor and partner gatekeeping, actor and partner gatekeeping and childcare interaction.
+We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. We used multilevel modeling and the Actor-Partner Interdependence Model [@Kenny] to test interaction between childcare, actor gatekeeping and partner gatekeeping. The APIM allows us to assess how the fathers and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model that included father's childcare contribution, actor and partner gatekeeping, and the interaction of actor and partner gatekeeping and childcare.
 
 ### Second and Third Hypotheses
 For the second and third research questions, our hypotheses were as follows: that people who objectified their partners more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. 
