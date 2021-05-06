@@ -1,0 +1,201 @@
+---
+title: "q1"
+output: html_document
+---
+```{r setup, include = FALSE}
+library(papaja)
+library(mosaic)
+library(lubridate)
+library(nlme)
+r_refs("r-references.bib")
+```
+
+
+```{r analysis-preferences, include = FALSE}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+```{r include = FALSE, echo=FALSE}
+library(tidyverse)
+library(readr)
+library(psych)
+library(kableExtra)
+assembled_dataset<- read_csv("assembled-dataset.csv")
+```
+
+```{r}
+fathers<-subset(assembled_dataset, gender="Man")%>%
+mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1)) #not this is an indicator of NOT teleworking
+```
+
+```{r}  
+fathers<-fathers%>%
+mutate(gatekeep_premeasures = gatekeep_premeasures - mean(fathers$gatekeep_premeasures, na.rm = TRUE))
+```
+
+```{r}
+#fathers_APIM<-fathers
+```
+
+
+```{r}
+gk_temp_1 <- fathers_APIM%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- fathers_APIM%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+fathers_APIM<- fathers_APIM%>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+```
+
+```{r}
+
+mlm <- gls(relation_qual ~ childcare_tasks, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm)
+```
+
+
+RANDI's CHUNK
+```{r}
+fathers_APIM %>%
+  summarise(mean = mean(gatekeep_P, na.rm=TRUE),
+            min(gatekeep_P, na.rm = TRUE),
+            max(gatekeep_P, na.rm = TRUE))
+
+fathers_APIM <- fathers_APIM %>%
+  mutate(gatekeep_P_low= gatekeep_P + 2.00497,
+         gatekeep_P_high= gatekeep_P - 1.99503)
+
+#Child_tasks effect for mean gatekeep_A and gatekeep_P (because we grand-mean centered)
+mlm1 <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm1)
+
+#Child_tasks effect when gatekeep_P is low. "Low" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean. 
+mlm_low <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P_low 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_low, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm_low)
+
+#Child_tasks effect when gatekeep_P is high. "High" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean.
+mlm_high <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P_high 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_high, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm_high)
+```
+
+childcare tasks dont affect relatioship satisfaction when gatekeeping for both actor and partner is at the mean(p-val=0.4425)
+when childcare tasks is at 0, then when their gatekeeping increases by 1 unit, they relationship satisfaction goes down by 0.5()
+when childcare tasks is at 0, then when their partner's  gatekeeping increases by 1 unit, they relationship satisfaction goes down by 0.47()
+the negative effect of partner's gatekeeping on the father's relationship satisfaction is reduced by 0.002823 when theirchildcare tasks increase by 1. 
+if the partner gatekeeps more than more positive
+
+```{r}
+
+mlm2 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+childcare_tasks*gatekeep_premeasures, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm2)
+```
+
+```{r}
+mlm3 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm3)
+```
+
+```{r}
+mlm4 <- gls(relation_qual ~ childcare_tasks+gatekeep_premeasures+telework+childcare_tasks*gatekeep_premeasures+childcare_tasks*telework, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm4)
+```
+
+```{r}
+mlm5 <- gls(relation_qual ~ childcare_tasks+gatekeep_A+gatekeep_P+telework+childcare_tasks*gatekeep_A+childcare_tasks*gatekeep_P+childcare_tasks*telework, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm5)
+```
+
+
+
+#Analysis strategy:
+We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. We used multilevel modeling and the Actor-Partner Interdependence Model (APIM; Kenny, Kashy, & Cook, 2006) to test interaction between childcare, actor gatekeeping and partner gatekeeping . The APIM allows us to assess how the fathers and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model including father's childcare, actor and partner gatekeeping, actor and partner gatekeeping and childcare interaction.
+
+#Figure1 :
+
+```{r}
+df <- read.table(text = 
+"'Childcare Tasks'  0.0067   0.0033   0.0431
+'Gatekeeping Actor'  -0.5115    0.1522   0.0010
+'Gatekeeping Partner high'  -0.4763    0.1539   0.0023
+'Childcare Tasks x Gatekeeping Actor'  -0.0017   0.0014  0.2073
+'Childcare Tasks x Gatekeeping Partner High'  	0.0028    0.0014  0.0484"
+)
+names(df) <- c("variable","coefficient"," SE ", "  p-value")
+kbl(df) 
+df%>%
+ kbl( caption = '<b>Relationship Between Predictors and Relationship Satisfaction</b>', format = 'html') %>%
+  kable_styling()
+```
+
+#Figure 2:
+
+```{r}
+ggplot(data=fathers, aes(x=childcare_tasks, y=relation_qual))+ylim(0, 9)+geom_smooth(method="lm", colour="black", se=FALSE)+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  xlab("Childcare Tasks") + ylab("Relationship Satisfaction")
+```
+
+
+#Main Results:
+
+See Figure 1 for all of the estimates from my final model.
+Contrary to our original hypothesis, we found that when fathers do more childcare tasks it positively affects their relatioship satisfaction when their gateekping is at the mean and their partner's gatekeeping is high, b = 0.0067, SE = 0.0033, p = 0.0431.  
+when father's childcare tasks is at 0, their own gatekeeping has a staistically significant negative effect on their relationship satisfaction, b=-0.5115, SE = 0.1522, p = 0.0001. Their partner 's gatekeeping has a similar effect, b=0.4763, SE = 0.1539, p = 0.0001.
+The negative effect of partner's gatekeeping on the father's relationship satisfaction is reduced when they do more childcare tasks, b=0.0028, SE = 0.0014, p = 0.0484. 
