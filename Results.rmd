@@ -72,7 +72,7 @@ assembled_dataset<- read_csv("assembled-dataset.csv")
 
 ```{r include = FALSE}
 fathers<-subset(assembled_dataset, gender="Man")%>%
-mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1)) #not this is an indicator of NOT teleworking
+mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 1, 0)) #not this is an indicator of NOT teleworking
 ```
 
 ```{r include = FALSE}  
@@ -128,47 +128,47 @@ fathers_APIM %>%
             min(gatekeep_P, na.rm = TRUE),
             max(gatekeep_P, na.rm = TRUE))
 
+fathers_APIM<-subset(fathers_APIM, gender=="Man")
+  
 fathers_APIM <- fathers_APIM %>%
   mutate(gatekeep_P_low= gatekeep_P + 2.00497,
          gatekeep_P_high= gatekeep_P - 1.99503)
-
 #Child_tasks effect for mean gatekeep_A and gatekeep_P (because we grand-mean centered)
-mlm1 <- gls(relation_qual ~ childcare_tasks 
+mlm1 <- lm(relation_qual ~ childcare_tasks 
             + gatekeep_A + gatekeep_P 
             + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P, 
            data = fathers_APIM,
-           correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
 
 summary(mlm1)
 
 #Child_tasks effect when gatekeep_P is low. "Low" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean. 
-mlm_low <- gls(relation_qual ~ childcare_tasks 
+mlm_low <- lm(relation_qual ~ childcare_tasks 
             + gatekeep_A + gatekeep_P_low 
             + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_low, 
            data = fathers_APIM,
-           correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
 
 summary(mlm_low)
 
 #Child_tasks effect when gatekeep_P is high. "High" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean.
-mlm_high <- gls(relation_qual ~ childcare_tasks 
+mlm_high <- lm(relation_qual ~ childcare_tasks 
             + gatekeep_A + gatekeep_P_high 
             + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_high, 
            data = fathers_APIM,
-           correlation = corCompSymm(form=~1|dyadID),
            na.action = na.omit)
 
 summary(mlm_high)
 ```
 
 
-
 ## Analysis strategy:
 
 ### First Hypothesis
-We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. We used multilevel modeling and the Actor-Partner Interdependence Model [@Kenny] to test interaction between childcare, actor gatekeeping and partner gatekeeping. The APIM allows us to assess how the fathers and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model that included father's childcare contribution, actor and partner gatekeeping, and the interaction of actor and partner gatekeeping and childcare.
+
+At first we considered using multilevel modeling for our analysis since we included same sex male couples and wanted to account for the nonindependence( proportion of variance explained by the
+dyad) effect on our signifcance tests. However, since there weren't enough dyads in our dataset we used a multiple regression model instead. We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. The gatekeeping of a couple usually tends to affect one another to the point where it can not be considered independent. To measure how our dyads influence each other, we used the Actor-Partner Interdependence Model [@Kenny]. We used the APIM and mutliple regression model to test the interaction between childcare, actor gatekeeping and partner's high level of gatekeeping. The APIM allows us to assess how the fathers' and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model including father's childcare, actor and partner gatekeeping, and childcare interaction.
+
 
 ### Second and Third Hypotheses
 For the second and third research questions, our hypotheses were as follows: that people who objectified their partners more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. 
@@ -184,11 +184,11 @@ Out of the 364 individuals (182 couples) who answered the questionnaire for the 
 
 ```{r q1table}
 df <- read.table(text = 
-"'Childcare Tasks'  0.0067   0.0033   0.0431
-'Gatekeeping Actor'  -0.5115    0.1522   0.0010
-'Gatekeeping Partner high'  -0.4763    0.1539   0.0023
-'Childcare Tasks x Gatekeeping Actor'  -0.0017   0.0014  0.2073
-'Childcare Tasks x Gatekeeping Partner High'  	0.0028    0.0014  0.0484"
+"'Childcare Tasks'  -0.006   0.005   0.27
+'Gatekeeping Actor'  -0.56    0.32   0.08
+'Gatekeeping Partner high'  -0.37    0.30   0.23
+'Childcare Tasks x Gatekeeping Actor'  -0.004    0.004  0.27
+'Childcare Tasks x Gatekeeping Partner High'  	0.003    0.003  0.31"
 )
 names(df) <- c("variable","coefficient"," SE ", "  p-value")
 # kbl(df) 
@@ -208,20 +208,13 @@ apa_table(
 ```
 
 
-```{r q1graph, echo = FALSE, include = FALSE}
-ggplot(data=fathers, aes(x=childcare_tasks, y=relation_qual))+ylim(0, 9)+geom_smooth(method="lm", colour="black", se=FALSE)+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  xlab("Childcare Tasks") + ylab("Relationship Satisfaction")
-```
-
-
 # Main Results:
 
 ## First Hypothesis
+
 See Table\ \@ref(tab:q1table) for all of the estimates from my final model.
-Contrary to our original hypothesis, we found that when fathers do more childcare tasks it positively affects their relationship satisfaction when their gateekping is at the mean and their partner's gatekeeping is high, ($b$ = 0.01, $SE$ $\leq$ 0.01, $p$ = 0.043).  
-When father's childcare tasks is at 0, their own gatekeeping has a statistically significant negative effect on their relationship satisfaction, ($b$ = -0.51, $SE$ = 0.15, $p$ $\leq$ .001). Their partner's gatekeeping has a similar effect, ($b$ = 0.48, $SE$ = 0.15, $p$ $\leq$ .001).
-The negative effect of partner's gatekeeping on the father's relationship satisfaction is reduced when they do more childcare tasks, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.048). 
+Contrary to our original hypothesis, father's childcare tasks do not significantly affect their relatioship satisfaction when their gateekping is at the mean and their partner's gatekeeping is high, ($b$ = -0.01, $SE$ $\leq$ 0.01, $p$ = 0.27).  
+When father's childcare tasks is at 0, their own and their partner's gatekeeping do not have a significant effect on their relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). The negative effect of partner's gatekeeping on the father's relationship satisfaction is not significantly affected when they do more childcare tasks, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31). Similarly, childcare tasks do not significantly affect the father's gatekeeping effect on their relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27)
 
 ## Second and Third Hypotheses
 
