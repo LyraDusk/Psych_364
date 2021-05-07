@@ -164,7 +164,7 @@ summary(mlm_high)
 
 ## First Hypothesis  
 
-Our first hypothesis stated that fathers who took on a greater share of childhood tasks would have less relationship satisfaction. Due to the small number of dyads in our dataset, we used multiple regression modeling. 
+Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of dyads in our dataset, we used multiple regression modeling. 
 To arrive at our final model, we included the explanatory variable childcare tasks. Our moderating variables were actor’s gatekeeping and partner’s gatekeeping. We created a new variable called “high-gatekeeping” to separately measure individuals with higher levels of gatekeeping by centering gatekeeping at the mean and subtracting 1.99 (as suggested by Randi, we are unclear about why and how to report it). We used the Actor-Partner Interdependence Model [@Kenny] to measure the interaction between actor’s and partner’s high-gatekeeping and childcare. The APIM allowed us to account for the nonindependence that is often present in dyads.
 
 ## Second and Third Hypotheses
