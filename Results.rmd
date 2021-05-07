@@ -164,7 +164,7 @@ summary(mlm_high)
 
 ## First Hypothesis  
 
-Our first hypothesis stated that fathers who took on a greater share of childhood tasks would have less relationship satisfaction. Due to the small number of dyads in our dataset, we used multiple regression modeling. 
+Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of dyads in our dataset, we used multiple regression modeling. 
 To arrive at our final model, we included the explanatory variable childcare tasks. Our moderating variables were actor’s gatekeeping and partner’s gatekeeping. We created a new variable called “high-gatekeeping” to separately measure individuals with higher levels of gatekeeping by centering gatekeeping at the mean and subtracting 1.99 (as suggested by Randi, we are unclear about why and how to report it). We used the Actor-Partner Interdependence Model [@Kenny] to measure the interaction between actor’s and partner’s high-gatekeeping and childcare. The APIM allowed us to account for the nonindependence that is often present in dyads.
 
 ## Second and Third Hypotheses
@@ -183,7 +183,7 @@ Out of the 364 individuals (182 couples) who answered the questionnaire for the 
 
 ```{r q1table}
 df <- read.table(text = 
-"'Childcare Tasks'  -0.006   0.005   0.27
+"'Childcare Tasks'  0.006   0.005   0.27
 'Gatekeeping Actor'  -0.56    0.32   0.08
 'Gatekeeping Partner high'  -0.37    0.30   0.23
 'Childcare Tasks x Gatekeeping Actor'  -0.004    0.004  0.27
@@ -212,8 +212,8 @@ apa_table(
 ## Childcare tasks on father’s relationship satisfaction
 
 See Table\ \@ref(tab:q1table) for all of the estimates from our final model.
-Contrary to our first hypothesis, father's childcare task load had no statistically significant effect on relationship satisfaction when actor’s gatekeeping was at the mean and partner's gatekeeping was high, ($b$ = -0.01, $SE$ $\leq$ 0.01, $p$ = 0.27).  
-When fathers did no childcare tasks, there was no statistically significant effect of either actor or partner gatekeeping on relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). Doing more childcare tasks did not have a significant effect on the interaction of actor gatekeeping and relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31). Similarly, childcare task load did not have a statistically significantly effect on partner's high-gatekeeping on relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27)
+Contrary to our first hypothesis, father's childcare task load had no statistically significant effect on relationship satisfaction when actor’s gatekeeping was at the mean and partner's gatekeeping was high, ($b$  $\leq$ 0.01, $SE$ $\leq$ 0.01, $p$ = 0.27).  
+When fathers did no childcare tasks, there was no statistically significant effect of either actor or partner gatekeeping on relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). Doing more childcare tasks did not have a significant effect on the interaction of actor gatekeeping and relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27). Similarly, childcare task load did not have a statistically significantly effect on the interaction of partner's high-gatekeeping and relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31)
 
 ## Objectification predicting childcare labor contribution 
 
