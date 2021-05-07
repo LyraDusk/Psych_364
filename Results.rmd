@@ -1,0 +1,376 @@
+---
+title             : "Results and Analysis Strategy"
+shorttitle        : "Results"
+
+author: 
+  - name          : "Angela Jauregui"
+    # affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+  - name          : "Lauren Meyer"
+    #affiliation   : "1"  
+  - name          : "Syrine Matoussi"
+    # affiliation   : "1"
+    role:
+
+
+affiliation:
+  - id            : " "
+    institution   : "Smith College"
+
+
+
+abstract: | 
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib", "paper-references.bib", "annotated.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : no
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+
+
+
+
+# Results
+
+```{r setup, include = FALSE}
+library(papaja)
+library(mosaic)
+library(lubridate)
+library(nlme)
+r_refs("r-references.bib")
+```
+
+
+```{r analysis-preferences, include = FALSE}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+```{r include = FALSE, echo=FALSE}
+library(tidyverse)
+library(readr)
+library(psych)
+library(kableExtra)
+assembled_dataset<- read_csv("assembled-dataset.csv")
+```
+
+```{r include = FALSE}
+fathers<-subset(assembled_dataset, gender="Man")%>%
+mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1)) #not this is an indicator of NOT teleworking
+```
+
+```{r include = FALSE}  
+fathers<-fathers%>%
+mutate(gatekeep_premeasures = gatekeep_premeasures - mean(fathers$gatekeep_premeasures, na.rm = TRUE))
+```
+
+```{r include = FALSE}
+fathers_APIM<-fathers
+```
+
+
+```{r include = FALSE}
+gk_temp_1 <- fathers_APIM%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- fathers_APIM%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+fathers_APIM<- fathers_APIM%>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+```
+
+```{r include = FALSE}
+
+mlm <- gls(relation_qual ~ childcare_tasks, 
+           data = fathers,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm)
+```
+
+
+```{r include = FALSE}
+fathers_APIM %>%
+  summarise(mean = mean(gatekeep_P, na.rm=TRUE),
+            min(gatekeep_P, na.rm = TRUE),
+            max(gatekeep_P, na.rm = TRUE))
+
+fathers_APIM <- fathers_APIM %>%
+  mutate(gatekeep_P_low= gatekeep_P + 2.00497,
+         gatekeep_P_high= gatekeep_P - 1.99503)
+
+#Child_tasks effect for mean gatekeep_A and gatekeep_P (because we grand-mean centered)
+mlm1 <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm1)
+
+#Child_tasks effect when gatekeep_P is low. "Low" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean. 
+mlm_low <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P_low 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_low, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm_low)
+
+#Child_tasks effect when gatekeep_P is high. "High" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean.
+mlm_high <- gls(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P_high 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_high, 
+           data = fathers_APIM,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(mlm_high)
+```
+
+
+
+## Analysis strategy:
+
+### First Hypothesis
+We hypothesized that higher childcare tasks would negatively affect father's relationship satisfaction. We used multilevel modeling and the Actor-Partner Interdependence Model [@Kenny] to test interaction between childcare, actor gatekeeping and partner gatekeeping. The APIM allows us to assess how the fathers and their partner's gatekeeping affect their childcare and relationship satisfaction. To arrive at our final model we used a mutiple regression model that included father's childcare contribution, actor and partner gatekeeping, and the interaction of actor and partner gatekeeping and childcare.
+
+### Second and Third Hypotheses
+For the second and third research questions, our hypotheses were as follows: that people who objectified their partners more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. 
+Because our participants were individuals within couples, the statistical analyses were conducted as multilevel models with indistinguishable dyads to account for the nonindependence and shared variance. 
+We originally built out a full interaction model using both actor and partner effects, with childcare task load as the response variable and self-objectification as the main predictor, with partner-objectification received from the participant’s partner as a secondary predictor. Gender was used as a moderator, given the traditionally unbalanced expectation of childcare between heterosexual couples [@ChungH; @BleskeRechekA] and gatekeeping was used as a control variable. We also modeled the interaction between gender and received partner-objectification as a predictor of task load. 
+The original model was built up as a full Actor-Partner Interdependence Model [@Kenny], with both actor and partner variables for self- and other-objectification and several interaction terms related to them. However, the model was then pared down to only include variables that were significant or nearing significance ($p$ $\leq$ 0.10). This dropped the partner variables for self-objectification and the actor variable for partner-objectification from the model. Other control variables considered and ultimately rejected from the model included race, ambivalent sexism (both actor and partner) and teleworking status. 
+
+### Missing Data
+Out of the 364 individuals (182 couples) who answered the questionnaire for the first part of the study, only 265 participated in the later daily diaries portion. Of those, only 147 individuals had children and only 142 (71 couples) still had partners in the study. Individuals who did not respond to any of the questions used in the model were excluded. 
+
+
+
+
+```{r q1table}
+df <- read.table(text = 
+"'Childcare Tasks'  0.0067   0.0033   0.0431
+'Gatekeeping Actor'  -0.5115    0.1522   0.0010
+'Gatekeeping Partner high'  -0.4763    0.1539   0.0023
+'Childcare Tasks x Gatekeeping Actor'  -0.0017   0.0014  0.2073
+'Childcare Tasks x Gatekeeping Partner High'  	0.0028    0.0014  0.0484"
+)
+names(df) <- c("variable","coefficient"," SE ", "  p-value")
+# kbl(df) 
+# df%>%
+#  kbl( caption = '<b>Relationship Between Predictors and Relationship Satisfaction</b>', format = 'html') %>%
+#   kable_styling()
+
+
+df <- printnum(df)
+
+apa_table(
+  df, 
+  caption = "Relationship Between Predictors and Relationship Satisfaction.",
+ # note = "This table was created with apa_table()",
+  escape = TRUE
+)
+```
+
+
+```{r q1graph, echo = FALSE, include = FALSE}
+ggplot(data=fathers, aes(x=childcare_tasks, y=relation_qual))+ylim(0, 9)+geom_smooth(method="lm", colour="black", se=FALSE)+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  xlab("Childcare Tasks") + ylab("Relationship Satisfaction")
+```
+
+
+# Main Results:
+
+## First Hypothesis
+See Table\ \@ref(tab:q1table) for all of the estimates from my final model.
+Contrary to our original hypothesis, we found that when fathers do more childcare tasks it positively affects their relationship satisfaction when their gateekping is at the mean and their partner's gatekeeping is high, ($b$ = 0.01, $SE$ $\leq$ 0.01, $p$ = 0.043).  
+When father's childcare tasks is at 0, their own gatekeeping has a statistically significant negative effect on their relationship satisfaction, ($b$ = -0.51, $SE$ = 0.15, $p$ $\leq$ .001). Their partner's gatekeeping has a similar effect, ($b$ = 0.48, $SE$ = 0.15, $p$ $\leq$ .001).
+The negative effect of partner's gatekeeping on the father's relationship satisfaction is reduced when they do more childcare tasks, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.048). 
+
+## Second and Third Hypotheses
+
+In the final model, as expected, the relationship between self-objectification and childcare task load was significant, ($b$ = .85, $t$ = 2.33, $p$ = .021), with individuals who objectified themselves doing more work in childcare. There was not a significant relationship between experienced partner objectification and childcare task load, ($b$ = .60, $t$ = 1.39, $p$ = .165). There was no relationship between the individual’s partner objectification and childcare task load, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561), contrary to our third hypothesis, so the partner objectification actor variable was dropped from the model. 
+Gender did have a significant effect on task load, with women on average doing more tasks than men, with all other things being equal ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and received partner objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011). 
+
+
+
+\newpage
+
+```{r include = FALSE}
+
+assembled_dataset <- read_csv("assembled-dataset.csv")
+
+```
+
+```{r include = FALSE}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
+
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1) %>%
+  mutate(gender = ifelse(gender == "Man,Cis gendered", "Man", gender)) %>%
+  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender)) %>%
+  mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
+rm(children_only)
+
+
+full_dyads <- children_and_tasks %>%
+  group_by(dyadID) %>%
+  summarize(n = n())
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(children_and_tasks$gatekeep_premeasures, na.rm = TRUE))
+
+```
+
+```{r include = FALSE}
+Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(Basic_Objectification)
+#Women in general do more tasks than men. People who objectify themselves more do more tasks. Curiously, men whose partners objectify them more do more childcare tasks (though insignificant), and women whose partners objectify them more do fewer childcare tasks. 
+```
+
+
+```{r include = FALSE}
+gk_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+
+```
+
+```{r include = FALSE}
+cc_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(Childcare_P1 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P1)
+
+cc_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(Childcare_P2 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(cc_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(cc_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(childcare_tasks_P = ifelse(is.na(Childcare_P1), Childcare_P2, Childcare_P1)) %>%
+  select(-ind, -Childcare_P2, -Childcare_P1) %>%
+  rename(childcare_tasks_A = childcare_tasks)
+
+rm(cc_temp_1, cc_temp_2)
+
+
+```
+
+
+```{r include = FALSE}
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+coeffs <- coef(apim_final)
+summarized <- summary(apim_final)
+t_table <- summarized$tTable
+t_table <- data.frame(t_table)
+row.names(t_table) <- c("Intercept","Self Objectification Score", "Female Gender", "Recieved Partner Objectification", "Gatekeeping", "Recieved Partner Objectification * Female Gender")
+t_table <- t_table %>%
+  select(-Std.Error) %>%
+  rename(B = Value,'t' = t.value, 'p' = p.value)
+```
+
+```{r test, include = FALSE}
+a <- unname(coeffs)
+b <- names(coeffs)
+test <- data.frame(a, b)
+t_table <- printnum(t_table)
+```
+
+```{r q23_table}
+
+apa_table(
+  t_table, 
+  caption = "Descriptive statistics of correct recall by dosage.",
+  note = "This table was created with apa_table()",
+  escape = TRUE
+)
+
+```
+\newpage
+
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
