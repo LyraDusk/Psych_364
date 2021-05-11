@@ -436,16 +436,21 @@ coef(icc_mod$model$corStruct, unconstrained = FALSE)
 
 
 ```{r}
-df <- read.table(text = 
+dff <- read.table(text = 
 "'Annual Income ($)'  76,618.80    105,704.12
 Age  45.80   8.35
 'Number of Children'  1.34     2.17
 Gatekeeping  3.00     0.92
 'Relationship Satisfaction'  6.47     1.31"
 )
-names(df) <- c("Measures","mean","SD")
-kable(df, caption = "Descriptive Statistics")
-kbl(df)
+names(dff) <- c("Measures","mean","SD")
+dff <- printnum(dff)
+apa_table(
+  dff, 
+  caption = "Descriptive Statistics.",
+ # note = "This table was created with apa_table()",
+  escape = TRUE
+)
 ```
 
 
