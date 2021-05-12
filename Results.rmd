@@ -164,14 +164,14 @@ summary(mlm_high)
 
 ## First Hypothesis  
 
-Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of dyads in our dataset, we used multiple regression modeling. 
-To arrive at our final model, we included the explanatory variable childcare tasks. Our moderating variables were actor’s gatekeeping and partner’s gatekeeping. We created a new variable called “high-gatekeeping” to separately measure individuals with higher levels of gatekeeping by centering gatekeeping at the mean and subtracting 1.99 (as suggested by Randi, we are unclear about why and how to report it). We used the Actor-Partner Interdependence Model [@Kenny] to measure the interaction between actor’s and partner’s high-gatekeeping and childcare. The APIM allowed us to account for the nonindependence that is often present in dyads.
+Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of same-sex male dyads in our dataset, we used multiple regression modeling with a non-dyadic dataset, only including men. 
+To arrive at our final model, we included the explanatory variable childcare tasks. Our moderating variables were actor’s gatekeeping and partner’s gatekeeping. We used a version of the Actor-Partner Interdependence Model [@Kenny] to measure the interaction between actor’s and partner’s gatekeeping and childcare. This was modified to integrate partner effects from the previous dyadic dataset into the final, non-dyadic dataset. 
 
 ## Second and Third Hypotheses
 
 Our second and third hypotheses were as follows: that partners who objectified their partner more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. We used multilevel modeling and the APIM [@Kenny]. Because our participants were individuals within couples, the APIM allowed us to conduct statistical analyses as multilevel models with indistinguishable dyads to account for the nonindependence and shared variance. 
-Our final model included partner’s partner-objectification and actor’s self-objectification as explanatory variables. Gender was used as a moderating variable and gatekeeping was used as a control variable. We also modeled the interaction between gender and partner’s partner-objectification. 
-During exploratory analysis we tested for actor’s partner-objectification, the moderation of race, ambivalent sexism (both actor and partner) and teleworking status, and several interaction terms. For parsimony, the model was then pared down to only include variables that were significant or nearing significance ($p$ $\leq$ 0.10). Although actor’s partner-objectification was a main explanatory variable for our second hypothesis, it was so insignificant and had such a high error term that it was disrupting the coefficient terms for the rest of the model and had to be dropped, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561).
+Our final model included partner’s partner-objectification and actor’s self-objectification as explanatory variables for the actor's childcare task load. Gender was used as a moderating variable and gatekeeping was used as a control variable. We also modeled the interaction between gender and partner’s partner-objectification. 
+During exploratory analysis we tested for actor’s partner-objectification, the moderation of race, ambivalent sexism (both actor and partner) and teleworking status, and several interaction terms. For parsimony, the model was then pared down to only include variables that were significant or nearing significance ($p$ $\leq$ 0.10). Although actor’s partner-objectification was a main explanatory variable for our second hypothesis, it had such a high error term that it was disrupting the coefficient terms for the rest of the model and was thus dropped, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561).
 
 ## Missing Data
 
@@ -207,7 +207,7 @@ apa_table(
 ```
 
 
-# Main Results:
+# Main Results
 
 ## Childcare tasks on father’s relationship satisfaction
 
@@ -217,8 +217,8 @@ When fathers did no childcare tasks, there was no statistically significant effe
 
 ## Objectification predicting childcare labor contribution 
 
-See Table\ \@ref(tab:q23table) for the estimates for all coefficients from our final model. Contrary to our second hypothesis, there was no effect of actor’s partner-objectification on childcare task load, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561). As predicted by our third hypothesis, there was a statistically significant effect of partner’s self-objectification on childcare task load, ($b$ = .85, $t$ = 2.33, $p$ = .021), with individuals who objectified themselves doing more childcare tasks. There was not a significant effect of actor’s partner-objectification on childcare task load, ($b$ = .60, $t$ = 1.39, $p$ = .165). 
-Gender had a significant effect on childcare task load, with women on average doing more tasks than men, holding all other variables constant, ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and actor’s partner-objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011).
+See Table\ \@ref(tab:q23table) for the estimates for all coefficients from our final model. Contrary to our second hypothesis, there was no effect of actor’s partner-objectification on childcare task load, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561). As predicted by our third hypothesis, there was a statistically significant effect of actor’s self-objectification on childcare task load, ($b$ = .85, $t$ = 2.33, $p$ = .021), with individuals who objectified themselves doing more childcare tasks. There was no significant effect of the actor's objectification of their partner on childcare task load, ($b$ = .60, $t$ = 1.39, $p$ = .165). 
+Gender had a significant effect on childcare task load, with women on average doing more tasks than men, ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and actor’s partner-objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011).
 
 
 
