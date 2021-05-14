@@ -1,0 +1,27 @@
+---
+title: "discussion"
+output: html_document
+---
+
+#results in plain English:
+We found that childcare is not a factor that affects fathers relationship satifcation in fathers relations satisifaction. Furthermore, when fathers gatekeep or their partner gate keeps it doesn't affect how satisfied they feel in their relationship or much childcare they do. We found that when a participant's partner objectified them more it didn't affect the amount of childcare they performed.
+#Discuss each hypothesis (was it supported or not? If not, why not?). Discuss how each major
+
+1. Although we hypthesized that who do a larger share of the childcare labor tasks would feel resentment toward their partners and subsequently feel less satisfied in their relationship. We didn't find any evidence that childcare affected father's relationship satisfaction/fulfilment. This may be due to the fact that we there was much missing data because some couples forgot to report their daily tasks and because our sample size decreased after ommiting couples who didn't have children and limiting the analysis to fathers.
+
+2.  Our second hypothesis that individuals with partner who highly objectified them would take on a smaller role in caring for their children was not supported. More specifically, when a participant's partner objectified them more it didn't affect the amount of childcare they performed. 
+
+3 Our hypothesis that individuals who objectified them more would take on a larger role in caring for their children was supported. More specifically, individuals who value their physical attributes more than their personality/view themeslevs as objects tend to perform more childcare tasks. We speculated that this may be due to the fact that people who self-objectify tend to perform more service tasks because they view themselves as vessels/objects. As expected, we found that women took on a higher load of childare tasks in general which adheres to traditional gender roles. However conrtrary to our expectations their childcare decreased when their partner objectified them more. A possible explanation may be that thatindividual who objectify their partners, also idoliaze them and as a result help them withtime-consuming tasks like childcare. 
+
+#Limitations:
+
+In our first research question, we hoped to be able to see the effect of childcare on father's relationships in both same-sex and heterosexual couples. However, the majority of couples in our samples were heterosexual and of the 3 same sex male couples none had children(double check). Therefore we were unable to assess the previously stated relationship for same sex male couples or to use dyadic data analysis.
+In addition our sample size was reduced from 182 couples to 71 couples and observations was cut by half due to our focus on father in the first questions. We suspect that these reasons might contribute to the lack of statistically significant results for the first and second hypotheses.
+Finally, we noticed that missing data in the pre-measure and diary and suspect that many partcipants forgot to fill in their diarie which affects the accuracy of our results.
+#Consider any future research studies that could be done given new questions your study raises
+–gatekeepig and gender of of children
+#State the final conclusions/implications that your research has for society:
+
+To the best of our knowlege, even through an extensivea amount of research has examined the effects of objectification on the mental health and self-esteem of a person. self-evaluation, physical 
+health, mental health, and cognitive performance, these studies are the first to examine how self-objectification affects.
+women’s engagement in gender-based social action
