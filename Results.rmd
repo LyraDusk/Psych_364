@@ -52,6 +52,7 @@ library(papaja)
 library(mosaic)
 library(lubridate)
 library(nlme)
+library(dplyr)
 r_refs("r-references.bib")
 ```
 
@@ -71,36 +72,27 @@ assembled_dataset<- read_csv("assembled-dataset.csv")
 ```
 
 ```{r include = FALSE}
-fathers<-subset(assembled_dataset, gender="Man")%>%
-mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 1, 0)) #not this is an indicator of NOT teleworking
-```
-
-```{r include = FALSE}  
-fathers<-fathers%>%
-mutate(gatekeep_premeasures = gatekeep_premeasures - mean(fathers$gatekeep_premeasures, na.rm = TRUE))
-```
-
-```{r include = FALSE}
-fathers_APIM<-fathers
+fathers<-assembled_dataset%>%
+mutate(gatekeep_premeasures = gatekeep_premeasures - mean(assembled_dataset$gatekeep_premeasures, na.rm = TRUE))
 ```
 
 
 ```{r include = FALSE}
-gk_temp_1 <- fathers_APIM%>%
+gk_temp_1 <- fathers%>%
   mutate(ind = rep(c(1, 0),length.out = n())) %>%
   group_by(dyadID) %>%
   filter(ind == 0) %>%
   rename(gatekeep_P1 = gatekeep_premeasures) %>%
   select(dyadID, ind, gatekeep_P1)
 
-gk_temp_2 <- fathers_APIM%>%
+gk_temp_2 <- fathers%>%
   mutate(ind = rep(c(1, 0),length.out = n())) %>%
   group_by(dyadID) %>%
   filter(ind == 1) %>%
   rename(gatekeep_P2 = gatekeep_premeasures) %>%
   select(dyadID, ind, gatekeep_P2)
 
-fathers_APIM<- fathers_APIM%>%
+fathers<- fathers%>%
   mutate(ind = rep(c(0, 1),length.out = n())) %>%
   left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
   left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
@@ -111,54 +103,20 @@ fathers_APIM<- fathers_APIM%>%
 rm(gk_temp_1, gk_temp_2)
 ```
 
-```{r include = FALSE}
-
-mlm <- gls(relation_qual ~ childcare_tasks, 
-           data = fathers,
-           correlation = corCompSymm(form=~1|dyadID),
-           na.action = na.omit)
-
-summary(mlm)
-```
 
 
 ```{r include = FALSE}
-fathers_APIM %>%
-  summarise(mean = mean(gatekeep_P, na.rm=TRUE),
-            min(gatekeep_P, na.rm = TRUE),
-            max(gatekeep_P, na.rm = TRUE))
-
-fathers_APIM<-subset(fathers_APIM, gender=="Man")
+fathers <- fathers 
+fathers<-subset(fathers, gender=="Man")
   
-fathers_APIM <- fathers_APIM %>%
-  mutate(gatekeep_P_low= gatekeep_P + 2.00497,
-         gatekeep_P_high= gatekeep_P - 1.99503)
 #Child_tasks effect for mean gatekeep_A and gatekeep_P (because we grand-mean centered)
 mlm1 <- lm(relation_qual ~ childcare_tasks 
             + gatekeep_A + gatekeep_P 
             + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P, 
-           data = fathers_APIM,
+           data = fathers,
            na.action = na.omit)
 
 summary(mlm1)
-
-#Child_tasks effect when gatekeep_P is low. "Low" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean. 
-mlm_low <- lm(relation_qual ~ childcare_tasks 
-            + gatekeep_A + gatekeep_P_low 
-            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_low, 
-           data = fathers_APIM,
-           na.action = na.omit)
-
-summary(mlm_low)
-
-#Child_tasks effect when gatekeep_P is high. "High" is the minimum of the gatekeep_P variable. Gatekeep_A remains at the mean.
-mlm_high <- lm(relation_qual ~ childcare_tasks 
-            + gatekeep_A + gatekeep_P_high 
-            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P_high, 
-           data = fathers_APIM,
-           na.action = na.omit)
-
-summary(mlm_high)
 ```
 
 
@@ -183,11 +141,11 @@ Out of the 364 individuals (182 couples) who answered the questionnaire for the 
 
 ```{r q1table}
 df <- read.table(text = 
-"'Childcare Tasks'  0.006   0.005   0.27
+"'Childcare Tasks'  '< 0.01'   '< 0.01'   0.94
 'Gatekeeping Actor'  -0.56    0.32   0.08
 'Gatekeeping Partner high'  -0.37    0.30   0.23
-'Childcare Tasks x Gatekeeping Actor'  -0.004    0.004  0.27
-'Childcare Tasks x Gatekeeping Partner High'  	0.003    0.003  0.31"
+'Childcare Tasks x Gatekeeping Actor'  '< 0.01'    '< 0.01'  0.27
+'Childcare Tasks x Gatekeeping Partner'  '< 0.01'  '< 0.01'  0.31"
 )
 names(df) <- c("variable","coefficient"," SE ", "  p-value")
 # kbl(df) 
@@ -212,8 +170,8 @@ apa_table(
 ## Childcare tasks on father’s relationship satisfaction
 
 See Table\ \@ref(tab:q1table) for all of the estimates from our final model.
-Contrary to our first hypothesis, father's childcare task load had no statistically significant effect on relationship satisfaction when actor’s gatekeeping was at the mean and partner's gatekeeping was high, ($b$  $\leq$ 0.01, $SE$ $\leq$ 0.01, $p$ = 0.27).  
-When fathers did no childcare tasks, there was no statistically significant effect of either actor or partner gatekeeping on relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). Doing more childcare tasks did not have a significant effect on the interaction of actor gatekeeping and relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27). Similarly, childcare task load did not have a statistically significantly effect on the interaction of partner's high-gatekeeping and relationship satisfaction, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31)
+Contrary to our first hypothesis, father's childcare task load had no statistically significant effect on relationship satisfaction when actor’s and partner's gatekeeping was at the mean ($b$  $\leq$ 0.01, $SE$ $\leq$ 0.01, $p$ = 0.94).  
+When fathers did no childcare tasks, there was no statistically significant effect of either actor's or partner's gatekeeping on relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). The interaction between performing more childcare tasks and actor's gatekeeping did not have a significant effect on relationship satisfaction for fathers, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27). Similarly, the interaction between performing more childcare tasks and partner's gatekeeping did not have a significant effect on relationship satisfaction for fathers, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31)
 
 ## Objectification predicting childcare labor contribution 
 
