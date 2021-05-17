@@ -52,6 +52,19 @@ children_and_tasks <- children_and_tasks %>%
 ```
 
 ```{r}
+children_and_tasks <- 
+  children_and_tasks %>%
+  left_join(full_dyads) %>%
+  filter(n == 2) %>%
+  select(-n)
+
+children_and_tasks %>%
+  group_by(couple_race) %>%
+  summarize(n = n())
+```
+
+
+```{r}
 Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P,
            data = children_and_tasks,
            correlation = corCompSymm(form=~1|dyadID),
