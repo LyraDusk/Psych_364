@@ -174,7 +174,7 @@ When fathers did no childcare tasks, there was no statistically significant effe
 ## Objectification predicting childcare labor contribution 
 
 See Table\ \@ref(tab:q23table) for the estimates for all coefficients from our final model. Contrary to our second hypothesis, there was no effect of actor’s partner-objectification on childcare task load, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561). As predicted by our third hypothesis, there was a statistically significant effect of actor’s self-objectification on childcare task load, ($b$ = .85, $t$ = 2.33, $p$ = .021), with individuals who objectified themselves doing more childcare tasks. There was no significant effect of the actor's objectification of their partner on childcare task load, ($b$ = .60, $t$ = 1.39, $p$ = .165). 
-Gender had a significant effect on childcare task load, with women on average doing more tasks than men, ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and actor’s partner-objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011).
+Gender had a significant effect on childcare task load, with women on average doing more tasks than men, ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and partner’s partner-objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011).
 
 
 
