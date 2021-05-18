@@ -289,7 +289,7 @@ coeffs <- coef(apim_final)
 summarized <- summary(apim_final)
 t_table <- summarized$tTable
 t_table <- data.frame(t_table)
-row.names(t_table) <- c("Intercept","Self Objectification Score", "Female Gender", "Recieved Partner Objectification", "Gatekeeping", "Recieved Partner Objectification * Female Gender")
+row.names(t_table) <- c("Intercept","Self Objectification Score", "Female Gender", "Partner's Partner Objectification", "Gatekeeping", "Partner's Partner Objectification * Female Gender")
 t_table <- t_table %>%
   select(-Std.Error) %>%
   rename(B = Value,'t' = t.value, 'p' = p.value)
