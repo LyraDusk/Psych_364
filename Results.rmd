@@ -122,7 +122,8 @@ summary(mlm1)
 
 ## First Hypothesis  
 
-Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of same-sex male dyads in our dataset, we used multiple regression modeling with a non-dyadic dataset, only including men. To arrive at our final regression model, we included childcare tasks as a predictor and actor’s gatekeeping and partner’s gatekeeping as moderators.
+Our first hypothesis stated that fathers who took on a greater share of childcare tasks would have less relationship satisfaction. Due to the small number of same-sex male dyads in our dataset, we used multiple regression modeling with a non-dyadic dataset, only including men. To arrive at our final regression model, we included childcare tasks, actor's gatekeepeing, partner's gatekeeping, the interaction between childcare tasks and actor's gatekeeping, and the interaction between childcare tasks and partner's gatekeeping as predictors.
+
 ## Second and Third Hypotheses
 
 Our second and third hypotheses were as follows: that partners who objectified their partner more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. We used multilevel modeling and the APIM [@Kenny]. Because our participants were individuals within couples, the APIM allowed us to conduct statistical analyses as multilevel models with indistinguishable dyads to account for the nonindependence and shared variance. 
