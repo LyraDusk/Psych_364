@@ -1,0 +1,350 @@
+---
+title             : "The title"
+shorttitle        : "Title"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Ernst-August Doelle"
+    affiliation   : "1,2"
+    role:
+      - Writing - Review & Editing
+
+affiliation:
+  - id            : "1"
+    institution   : "Wilhelm-Wundt-University"
+  - id            : "2"
+    institution   : "Konstanz Business School"
+
+abstract: |
+  The current study is the first to examine the relationship between objectification and childcare labor. Dyadic couples (n=71; 70 heterosexual and 1 same-sex) completed pre-measure surveys, then daily diaries for 14 days. Findings showed that people who self-objectified performed more childcare labor tasks. Partner-objectification and the role of childcare labor on father relationship satisfaction were also assessed. Findings provide further insight into the effects of objectification on romantic relationships.
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib", "paper-references.bib", "annotated.bib"]
+nocite            : |
+  @CarlsonDDivision, @RhoadsS, @StrelanP, @ZurbriggenE, @RamseyL, @NewkirkK, @ChungH, @BleskeRechekA, @RhoadsS, @RadcliffeL, @ChickK, @BroseS, @SullivanO, @CraigL, @IshiiM, @WangR, @CarlsonD, @ChungH, @BjarnasonT, @DownsD, @RamseyL, @MaharE, @BrockR, @MercurioA, @CalogeroR, @FredrickB
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library(papaja)
+library(mosaic)
+library(lubridate)
+library(nlme)
+library(dplyr)
+library(tidyverse)
+library(readr)
+library(psych)
+library(kableExtra)
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+
+Equitable division of childcare labor increases relationship satisfaction in cohabiting couples [@CarlsonDDivision]. Conversely, partner-objectification (viewing one's partner as an object) decreases relationship satisfaction for both men and women [@StrelanP; @ZurbriggenE] via self-objectification (viewing oneself as an object). [@RamseyL]. Objectification theory states that people who other-objectify in relationships tend to dehumanize their partners [@FredrickB]. Because childcare is viewed as a service task, the aim of the current study was to examine how the dynamic of objectification between partners affects the division of childcare labor in a dyadic framework of cohabiting couples.    
+  Mothers continue to take on a larger share of childcare labor, even in dual-earning households [@RhoadsS]. Factors that may prevent fathers from becoming more involved with childcare include traditional gender-oriented attitudes regarding childcare labor [@RadcliffeL; @BroseS] and maternal gatekeeping [@AllenS]. We sought to understand if men who act counter to societal gender norms by performing a majority of the childcare tasks would experience reduced relationship satisfaction. [connect labor and objectification] To our knowledge, this is the first study to examine associations between objectification and childcare labor roles. The current study looks to broaden the academic literature on objectification by examining if partner-objectification and self-objectification influence the distribution of childcare labor tasks. 
+  
+**Childcare labor and gender roles**  
+Cohabitating couples report less relationship conflict and higher relationship quality when the division of childcare labor is equitable [@NewkirkK; @CarlsonDDivision]. Despite this, women generally take on a larger share of childcare tasks than men [@ChungH; @BleskeRechekA], even when both partners have similar work obligations. In a study that examined married couples in which both partners were tenure track professors, fathers performed fewer childcare tasks than mothers, even when fathers held an egalitarian attitude toward childcare labor [@RhoadsS].  
+  Although women reported enjoying childcare tasks more than men [@BleskeRechekA], this may be due more to societal expectations that position women as the primary caretaker of children [@RadcliffeL] rather than a biological drive. Socialization of gender roles begins in infancy, with boys and girls receiving different gendered messaging from caretakers. Boys receive more attention from daycare workers and are more likely to receive comments about their size and physical abilities while girls are more likely to be reinforced for their appearance and helping behaviors [@ChickK]. These types of messages teach young children that a girl’s role is oriented toward domestic work [@ChickK] while boys are better suited for labor. In one study, most adolescents chose the mother as the parent who should stay home to care for children in equal earning couples, citing women’s social role as caretakers as a primary reason [@BroseS].  
+  However, gender normative views on childcare might not be static. Very low fertility countries, such as Germany and Slovenia, that have recently seen an increase in fertility rates also saw an increase in childcare labor contributions from young, more highly educated fathers [@SullivanO]. These countries also saw a corresponding decline in the percentage of men agreeing with the statement, “A man’s job is to earn money; a woman’s job is to look after the home and family” [@SullivanO], suggesting social diffusion of a change in attitudes toward gender roles and domestic labor. Additionally, men with higher levels of education [@CraigL; @SullivanO], lower levels of work-related stress [@IshiiM], and more family-oriented work environments [@IshiiM] are more likely to be involved in childcare labor.   
+  As mothers’ participation in the workforce has increased, so has fathers’ involvement in childcare labor [@WangR]. Recently, fathers who have transitioned to work-from-home positions due to restrictions from the Covid-19 pandemic have increased the amount of time spent taking care of children [@CarlsonD; @ChungH]. While couples reported better relationship quality when fathers were [more] involved in childcare [@CarlsonD], and men reported higher relationship satisfaction when the division of household tasks was equitable [@CarlsonD], men who spent more time on childcare tasks than their partner experienced reduced sexual satisfaction in their relationships [@CarlsonD]. Along this vein, we predicted that men who go against traditional gender roles by performing a larger share of childcare labor than their partners would experience lower relationship satisfaction. 
+
+**Objectification and Relationships**  
+Objectification involves treating a person as an object rather than a being with thoughts and feelings [@FredrickB]. Higher levels of objectification in the context of a romantic relationship may harm relationship quality for both the person being objectified and the objectifier [@DownsD; @ZurbriggenE; @StrelanP; @RamseyL; @MaharE]. People who were objectified by their partner reported less satisfaction in their relationships [@DownsD; @ZurbriggenE]. Additionally, people who objectified their partner reported reduced relationship satisfaction [@ZurbriggenE], although one study found support for this only with women who objectified their partner [@MaharE]. Some aspects of objectification appear to affect (men more than women) [men and women differently]. One study found evidence that women who self-objectify are more likely to support and justify gender norms that support sexist ideologies. These women were less likely to engage in social activism centered on gender inequalities [@CalogeroR]. However, a subsequent study failed to replicate these findings [@DewildeM]. Men were more likely to objectify their partner than women. Additionally, men who engaged in objectification reported less relationship commitment and were more likely to believe they had higher-quality relationship alternatives [@MaharE]. Lower sexual satisfaction was also associated with both partner- and self-objectification in men [@ZurbriggenE]. However, there were no differences in self-objectification between men and women [@ZurbriggenE], and lower partner objectification was associated with increased sexual satisfaction in both men and women [@BrockR].  
+  There is evidence that objectification has implications on personal well-being. Self-objectification has been associated with lower life satisfaction [@MercurioA], although research is mixed. Predicted associations between self-objectification and reduced self-esteem have been supported; however, there is no consensus about the link between self-objectification and body-esteem [@MercurioA; @StrelanP]. The absence of objectification predicted slightly more positive outcomes; in a study examining pregnant women and objectification, both men and women who felt humanized by their partner reported fewer depression symptoms [@BrockR].   
+ 	Partner- and self-objectification seem to be linked and self-perpetuating. People who other- and self-objectify are more likely to be in relationships with partners who also other- and self-objectify. Additionally, the more that someone is objectified, the more likely they are to self-objectify, which makes them more likely to objectify others [@StrelanP; @ZurbriggenE]. One study found that heterosexual women who enjoy being sexualized are more likely to feel objectified by their partner, leading to lower relationship satisfaction via increased self-objectification [@RamseyL]. Another study found that exotic dancers, sexualized by trade, reported feeling objectified more and having lower relationship satisfaction than college women; however, when moderated for sexual orientation, both college women and heterosexual exotic dancers had higher levels of relationship satisfaction than bisexual dancers [@DownsD].  
+ [ A possible consequence of objectification has societal implications beyond the scope of relationships and personal wellness. One study found evidence that women who self-objectify are more likely to support and justify gender norms that support sexist ideologies. These women were less likely to engage in social activism centered on gender inequalities [@CalogeroR]. However, a subsequent study failed to replicate these findings [@DewildeM].]<-(Remove this if we move this section to first paragraph) The current research sought to expand on previous literature by examining the association between objectification and childcare labor. We predicted that partner-objectification would predict a lower contribution to childcare labor, while self-objectification would predict a higher contribution for both men and women.  
+  
+**Current study**  
+The current study had two goals. Our first research question examined the role of childcare labor in relationship satisfaction for men in both heterosexual and same-sex cohabiting relationships. Because it is often a barrier to performing childcare tasks, we controlled for gatekeeping, which consists of beliefs and behaviors that limit equal partner participation [@AllenS]. [Did we moderate for gender?] Due to societal norms in the US that place mothers as the primary caretaker of children [@RadcliffeL; @BroseS], our first hypothesis was that fathers who take on a larger share of the childcare labor tasks would have decreased relationship satisfaction.
+  The current study is the first to examine objectification in the context of childcare. We used Actor Partner Independence Modeling to test our second and third research questions, moderating for gender. One characteristic of objectification is viewing a person as a vessel; thus, our second hypothesis was that people who objectify their partner would perform less childcare labor than their partner regardless of gender/for both men and women. Finally, building on previous research positively correlating partner-objectification with self-objectification [@StrelanP; @ZurbriggenE], our third hypothesis was that partners who self-objectify would perform a larger share of the childcare labor, regardless of gender.
+
+# Methods
+We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+
+## Participants
+
+## Material
+
+## Procedure
+
+## Data analysis
+We used `r cite_r("r-references.bib")` for all our analyses.
+
+
+# Results
+```{r include = FALSE, echo=FALSE}
+assembled_dataset<- read_csv("assembled-dataset.csv")
+```
+
+```{r include = FALSE}
+fathers<-assembled_dataset%>%
+mutate(gatekeep_premeasures = gatekeep_premeasures - mean(assembled_dataset$gatekeep_premeasures, na.rm = TRUE))
+```
+
+```{r include = FALSE}
+gk_temp_1 <- fathers%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- fathers%>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+fathers<- fathers%>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+```
+
+```{r include = FALSE}
+fathers <- fathers 
+fathers<-subset(fathers, gender=="Man")
+  
+#Child_tasks effect for mean gatekeep_A and gatekeep_P (because we grand-mean centered)
+mlm1 <- lm(relation_qual ~ childcare_tasks 
+            + gatekeep_A + gatekeep_P 
+            + childcare_tasks*gatekeep_A + childcare_tasks*gatekeep_P, 
+           data = fathers,
+           na.action = na.omit)
+
+summary(mlm1)
+```
+
+### First Hypothesis  
+
+Our first hypothesis stated that fathers who took on a larger share of childcare tasks would have less relationship satisfaction. Due to the small number of same-sex male dyads in our dataset, we used multiple regression modeling with a non-dyadic dataset, only including men. To arrive at our final regression model, we included childcare tasks, actor's gatekeeping, partner's gatekeeping, the interaction between childcare tasks and actor's gatekeeping, and the interaction between childcare tasks and partner's gatekeeping as predictors.
+
+### Second and Third Hypotheses
+
+Our second and third hypotheses were as follows: that partners who objectified their partner more would take on a smaller role in caring for their children, and that people who objectified themselves more would be more likely to take on an increased load of childcare tasks. We used multilevel modeling and the APIM [@Kenny]. Because our participants were individuals within couples, the APIM allowed us to conduct statistical analyses as multilevel models with indistinguishable dyads to account for the nonindependence and shared variance. 
+Our final model included partner’s partner-objectification and actor’s self-objectification as explanatory variables for the actor's childcare task load. Gender was used as a moderating variable and gatekeeping was used as a control variable. We also modeled the interaction between gender and partner’s partner-objectification. 
+During exploratory analysis we tested for actor’s partner-objectification, the moderation of race, ambivalent sexism (both actor and partner) and teleworking status, and several interaction terms. For parsimony, the model was then pared down to only include variables that were significant or nearing significance ($p$ $\leq$ 0.10). Although actor’s partner-objectification was a main explanatory variable for our second hypothesis, it had such a high error term that it was disrupting the coefficient terms for the rest of the model and was thus, dropped, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561).
+
+## Missing Data
+
+Out of the 364 individuals (182 couples) who answered the questionnaire for the first part of the study, only 265 participated in the later daily diaries portion. Of those, only 147 individuals had children, and only 142 (71 couples) still had partners in the study. Individuals who did not respond to any of the questions used in the model were excluded.
+
+```{r q1table}
+df <- read.table(text = 
+"'Childcare Tasks'  '< 0.01'   '< 0.01'   0.94
+'Gatekeeping Actor'  -0.56    0.32   0.08
+'Gatekeeping Partner high'  -0.37    0.30   0.23
+'Childcare Tasks x Gatekeeping Actor'  '< 0.01'    '< 0.01'  0.27
+'Childcare Tasks x Gatekeeping Partner'  '< 0.01'  '< 0.01'  0.31"
+)
+names(df) <- c("variable","coefficient"," SE ", "  p-value")
+# kbl(df) 
+# df%>%
+#  kbl( caption = '<b>Relationship Between Predictors and Relationship Satisfaction</b>', format = 'html') %>%
+#   kable_styling()
+
+
+df <- printnum(df)
+
+apa_table(
+  df, 
+  caption = "Relationship Between Predictors and Relationship Satisfaction.",
+ # note = "This table was created with apa_table()",
+  escape = TRUE
+)
+```
+
+## Main Results
+
+### Childcare tasks on father relationship satisfaction
+
+See Table\ \@ref(tab:q1table) for all of the estimates from our final model.
+Contrary to our first hypothesis, father childcare task load had no statistically significant effect on relationship satisfaction when actor and partner gatekeeping was at the mean ($b$  $\leq$ 0.01, $SE$ $\leq$ 0.01, $p$ = 0.94).  
+When fathers did no childcare tasks, there was no statistically significant effect of either actor's or partner's gatekeeping on relationship satisfaction, ($b$ = -0.56, $SE$ = 0.32, $p$ = 0.08), ($b$ = -0.37, $SE$ = 0.30, $p$ = 0.23). The interaction between performing more childcare tasks and actor's gatekeeping did not have a significant effect on relationship satisfaction for fathers, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.27). Similarly, the interaction between performing more childcare tasks and partner's gatekeeping did not have a significant effect on relationship satisfaction for fathers, ($b$  $\leq$ 0.01, $SE$  $\leq$ 0.01, $p$ = 0.31).
+
+### Objectification predicting childcare labor contribution 
+
+See Table\ \@ref(tab:q23table) for the estimates for all coefficients from our final model. Contrary to our second hypothesis, there was no effect of actor’s partner-objectification on childcare task load, ($b$ = -0.28, $t$ = -0.58, $p$ = 0.561). As predicted by our third hypothesis, there was a statistically significant effect of actor’s self-objectification on childcare task load, ($b$ = .85, $t$ = 2.33, $p$ = .021), with individuals who objectified themselves doing more childcare tasks. There was no significant effect of the actor's objectification of their partner on childcare task load, ($b$ = .60, $t$ = 1.39, $p$ = .165). 
+Gender had a significant effect on childcare task load, with women on average doing more tasks than men, ($b$ = 14.96, $t$ = 2.37, $p$ = .019). There was a significant interaction between gender and partner’s partner-objectification in a direction contrary to expectations, with women whose partners objectified them more doing fewer tasks than those whose partners objectified them less ($b$ = -1.72, $t$ = -2.57, $p$ = 0.011).
+
+\newpage
+
+```{r include = FALSE}
+
+assembled_dataset <- read_csv("assembled-dataset.csv")
+
+```
+
+```{r include = FALSE}
+children_only <- assembled_dataset %>%
+  filter(children_any == 1) %>%
+  group_by(dyadID) %>%
+  summarize(childcare_notNA = sum(childcare_tasks))
+
+children_and_tasks <- assembled_dataset %>%
+  left_join(children_only) %>%
+  filter(!is.na(childcare_notNA)) %>%
+  filter(children_any == 1) %>%
+  mutate(gender = ifelse(gender == "Man,Cis gendered", "Man", gender)) %>%
+  mutate(gender = ifelse(gender == "Woman,Cis gendered", "Woman", gender)) %>%
+  mutate(telework=ifelse(teleworking == c("Yes, I am teleworking but my partner is not", "We are both teleworking"), 0, 1))
+rm(children_only)
+
+
+full_dyads <- children_and_tasks %>%
+  group_by(dyadID) %>%
+  summarize(n = n())
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(gatekeep_premeasures = gatekeep_premeasures - mean(children_and_tasks$gatekeep_premeasures, na.rm = TRUE))
+
+```
+
+```{r include = FALSE}
+Basic_Objectification <- gls(childcare_tasks ~ self_obj_score + gender + gender*other_obj_score_P,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+summary(Basic_Objectification)
+#Women in general do more tasks than men. People who objectify themselves more do more tasks. Curiously, men whose partners objectify them more do more childcare tasks (though insignificant), and women whose partners objectify them more do fewer childcare tasks. 
+```
+
+
+```{r include = FALSE}
+gk_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(gatekeep_P1 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P1)
+
+gk_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(gatekeep_P2 = gatekeep_premeasures) %>%
+  select(dyadID, ind, gatekeep_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(gk_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(gk_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(gatekeep_P = ifelse(is.na(gatekeep_P1), gatekeep_P2, gatekeep_P1)) %>%
+  select(-ind, -gatekeep_P2, -gatekeep_P1) %>%
+  rename(gatekeep_A = gatekeep_premeasures)
+
+rm(gk_temp_1, gk_temp_2)
+
+```
+
+```{r include = FALSE}
+cc_temp_1 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 0) %>%
+  rename(Childcare_P1 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P1)
+
+cc_temp_2 <- children_and_tasks %>%
+  mutate(ind = rep(c(1, 0),length.out = n())) %>%
+  group_by(dyadID) %>%
+  filter(ind == 1) %>%
+  rename(Childcare_P2 = childcare_tasks) %>%
+  select(dyadID, ind, Childcare_P2)
+
+children_and_tasks <- children_and_tasks %>%
+  mutate(ind = rep(c(0, 1),length.out = n())) %>%
+  left_join(cc_temp_1, by = c("dyadID", "ind")) %>%
+  left_join(cc_temp_2, by = c("dyadID", "ind")) %>%
+  mutate(childcare_tasks_P = ifelse(is.na(Childcare_P1), Childcare_P2, Childcare_P1)) %>%
+  select(-ind, -Childcare_P2, -Childcare_P1) %>%
+  rename(childcare_tasks_A = childcare_tasks)
+
+rm(cc_temp_1, cc_temp_2)
+
+
+```
+
+
+```{r include = FALSE}
+apim_final <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A,
+           data = children_and_tasks,
+           correlation = corCompSymm(form=~1|dyadID),
+           na.action = na.omit)
+
+coeffs <- coef(apim_final)
+summarized <- summary(apim_final)
+t_table <- summarized$tTable
+t_table <- data.frame(t_table)
+row.names(t_table) <- c("Intercept","Self Objectification Score", "Female Gender", "Partner's Partner Objectification", "Gatekeeping", "Partner's Partner Objectification * Female Gender")
+t_table <- t_table %>%
+  select(-Std.Error) %>%
+  rename(B = Value,'t' = t.value, 'p' = p.value)
+```
+
+```{r test, include = FALSE}
+a <- unname(coeffs)
+b <- names(coeffs)
+test <- data.frame(a, b)
+t_table <- printnum(t_table)
+```
+
+```{r q23table}
+
+apa_table(
+  t_table, 
+  caption = "Effect of Self-Objectification on Childcare Tasks",
+  escape = TRUE
+)
+
+```
+
+# Discussion
+
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
