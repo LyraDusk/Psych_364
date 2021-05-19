@@ -39,7 +39,7 @@ floatsintext      : no
 figurelist        : no
 tablelist         : no
 footnotelist      : no
-linenumbers       : yes
+linenumbers       : no
 mask              : no
 draft             : no
 
@@ -84,7 +84,7 @@ Objectification involves treating a person as an object rather than a being with
  [ A possible consequence of objectification has societal implications beyond the scope of relationships and personal wellness. One study found evidence that women who self-objectify are more likely to support and justify gender norms that support sexist ideologies. These women were less likely to engage in social activism centered on gender inequalities [@CalogeroR]. However, a subsequent study failed to replicate these findings [@DewildeM].]<-(Remove this if we move this section to first paragraph) The current research sought to expand on previous literature by examining the association between objectification and childcare labor. We predicted that partner-objectification would predict a lower contribution to childcare labor, while self-objectification would predict a higher contribution for both men and women.  
   
 **Current study**  
-The current study had two goals. Our first research question examined the role of childcare labor in relationship satisfaction for men in both heterosexual and same-sex cohabiting relationships. Because it is often a barrier to performing childcare tasks, we controlled for gatekeeping, which consists of beliefs and behaviors that limit equal partner participation [@AllenS]. [Did we moderate for gender?] Due to societal norms in the US that place mothers as the primary caretaker of children [@RadcliffeL; @BroseS], our first hypothesis was that fathers who take on a larger share of the childcare labor tasks would have decreased relationship satisfaction.
+The current study had two goals. Our first research question examined the role of childcare labor in relationship satisfaction for men in both heterosexual and same-sex cohabiting relationships. Because it is often a barrier to performing childcare tasks, we controlled for gatekeeping, which consists of beliefs and behaviors that limit equal partner participation [@AllenS]. [Did we moderate for gender?] Due to societal norms in the US that place mothers as the primary caretaker of children [@RadcliffeL; @BroseS], our first hypothesis was that fathers who take on a larger share of the childcare labor tasks would have decreased relationship satisfaction.  
   The current study is the first to examine objectification in the context of childcare. We used Actor Partner Independence Modeling to test our second and third research questions, moderating for gender. One characteristic of objectification is viewing a person as a vessel; thus, our second hypothesis was that people who objectify their partner would perform less childcare labor than their partner regardless of gender/for both men and women. Finally, building on previous research positively correlating partner-objectification with self-objectification [@StrelanP; @ZurbriggenE], our third hypothesis was that partners who self-objectify would perform a larger share of the childcare labor, regardless of gender.
 
 # Methods
