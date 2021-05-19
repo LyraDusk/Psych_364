@@ -131,6 +131,36 @@ rm(cc_temp_1, cc_temp_2)
 ```
 
 
+```{r}
+pared <- premeasures %>%
+  select(ResponseId, indinc, Q138, birthday)
+
+demographics <- children_and_tasks %>%
+  left_join(pared)
+  
+
+demographics %>%
+#  group_by(birthday) %>%
+  summarize(m = median(childnum, na.rm = TRUE))
+
+
+demographics %>%
+  group_by(teleworking)%>%
+  summarize(n = n(), perc = n()/142)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 with_gatekeeping <- gls(childcare_tasks_A ~ self_obj_score + gender + gender*other_obj_score_P + gatekeep_A + gatekeep_A*gender,
